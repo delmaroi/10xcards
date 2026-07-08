@@ -133,27 +133,27 @@ Send already-authenticated visitors from the landing page straight into the prod
 
 #### Automated
 
-- [x] 1.1 Type/astro check passes: `npx astro sync && npx astro check`
-- [x] 1.2 Lint passes: `npm run lint`
-- [x] 1.3 Build passes: `npm run build`
+- [x] 1.1 Type/astro check passes: `npx astro sync && npx astro check` — c7fc635
+- [x] 1.2 Lint passes: `npm run lint` — c7fc635
+- [x] 1.3 Build passes: `npm run build` — c7fc635
 
 #### Manual
 
-- [x] 1.4 Logged out: `/dashboard` redirects to `/auth/signin`
-- [x] 1.5 Logged out: made-up product path (e.g. `/deck`) redirects to `/auth/signin`
-- [x] 1.6 Logged out: `/`, `/auth/signin`, `/auth/signup` render (no redirect)
-- [x] 1.7 Static assets load on public pages — no redirect loop
-- [x] 1.8 Auth flow still works end-to-end (sign in succeeds)
+- [x] 1.4 Logged out: `/dashboard` redirects to `/auth/signin` — c7fc635
+- [x] 1.5 Logged out: made-up product path (e.g. `/deck`) redirects to `/auth/signin` — c7fc635
+- [x] 1.6 Logged out: `/`, `/auth/signin`, `/auth/signup` render (no redirect) — c7fc635
+- [x] 1.7 Static assets load on public pages — no redirect loop — c7fc635
+- [x] 1.8 Auth flow still works end-to-end (sign in succeeds) — c7fc635
 
 ### Phase 2: Authenticated landing redirect
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npm run lint`
-- [ ] 2.2 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint`
+- [x] 2.2 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.3 Logged in: `/` redirects to `/dashboard`
-- [ ] 2.4 Logged out: `/` still renders the landing
-- [ ] 2.5 Logged in: `/dashboard` renders (no loop)
+- [x] 2.3 Logged in: `/` redirects to `/dashboard`
+- [x] 2.4 Logged out: `/` still renders the landing
+- [x] 2.5 Logged in: `/dashboard` renders (no loop)
