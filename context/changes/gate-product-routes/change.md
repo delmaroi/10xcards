@@ -1,7 +1,7 @@
 ---
 change_id: gate-product-routes
 title: Gate product routes behind login and add a public landing page
-status: implementing
+status: implemented
 created: 2026-07-08
 updated: 2026-07-08
 archived_at: null

@@ -149,11 +149,11 @@ Send already-authenticated visitors from the landing page straight into the prod
 
 #### Automated
 
-- [x] 2.1 Lint passes: `npm run lint`
-- [x] 2.2 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint` — e7e7986
+- [x] 2.2 Build passes: `npm run build` — e7e7986
 
 #### Manual
 
-- [x] 2.3 Logged in: `/` redirects to `/dashboard`
-- [x] 2.4 Logged out: `/` still renders the landing
-- [x] 2.5 Logged in: `/dashboard` renders (no loop)
+- [x] 2.3 Logged in: `/` redirects to `/dashboard` — e7e7986
+- [x] 2.4 Logged out: `/` still renders the landing — e7e7986
+- [x] 2.5 Logged in: `/dashboard` renders (no loop) — e7e7986
