@@ -8,6 +8,7 @@ import cloudflare from "@astrojs/cloudflare";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://10x-cards.mariusz-jarzabek.workers.dev",
   output: "server",
   integrations: [react(), sitemap()],
   vite: {
