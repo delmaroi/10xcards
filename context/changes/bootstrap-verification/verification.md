@@ -40,10 +40,10 @@ hints:
 
 ## Pre-scaffold verification
 
-| Signal       | Value                                          | Severity | Notes                                              |
-| ------------ | ---------------------------------------------- | -------- | -------------------------------------------------- |
-| npm package  | not run                                        | n/a      | cmd_template starts with `git clone` — npm step skipped per spec |
-| GitHub repo  | przeprogramowani/10x-astro-starter last pushed 2026-05-17 | fresh    | from card.docs_url; `gh` unavailable, fetched read-only via api.github.com |
+| Signal      | Value                                                     | Severity | Notes                                                                      |
+| ----------- | --------------------------------------------------------- | -------- | -------------------------------------------------------------------------- |
+| npm package | not run                                                   | n/a      | cmd_template starts with `git clone` — npm step skipped per spec           |
+| GitHub repo | przeprogramowani/10x-astro-starter last pushed 2026-05-17 | fresh    | from card.docs_url; `gh` unavailable, fetched read-only via api.github.com |
 
 ## Scaffold log
 
@@ -63,15 +63,19 @@ hints:
 **Direct vs transitive**: 5 direct vulnerable top-level packages of 18 advisories (npm audit reports advisories per-package; severity-by-direct not fully separable from this output)
 
 #### CRITICAL findings
+
 None.
 
 #### HIGH findings
+
 8 high-severity advisories. Direct vulnerable packages among the dependency tree: `@astrojs/check`, `@astrojs/cloudflare`, `astro`, `supabase`, `wrangler`. Run `npm audit` (without `--json`) for the per-advisory detail and `npm audit fix` for non-breaking remediations.
 
 #### MODERATE findings
+
 9 moderate-severity advisories across the dependency tree.
 
 #### LOW / INFO findings
+
 1 low-severity advisory.
 
 > Note: these counts come from the starter's pinned dependencies as cloned; remediation is left to the user (`npm audit fix` for non-breaking, `npm audit fix --force` for breaking). Bootstrapper informs, does not auto-fix.
@@ -99,6 +103,7 @@ None.
 Next: a future skill will set up agent context (CLAUDE.md, AGENTS.md). For now, your project is scaffolded and verified — happy hacking.
 
 Useful manual steps in the meantime:
+
 - **Replace the empty `package.json`**: the cwd had a 0-byte `package.json` that won the conflict; the starter's real manifest is at `package.json.scaffold`. Run `mv package.json.scaffold package.json` (overwriting the empty one) or the project will not build. The starter also shipped `CLAUDE.md` — review it.
 - `git init` (if you have not already) to start your own repo history (the cloned upstream history was removed).
 - Review any `.scaffold` siblings the conflict policy created and decide which version of each file to keep.

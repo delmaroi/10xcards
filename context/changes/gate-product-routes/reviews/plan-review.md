@@ -1,4 +1,5 @@
 <!-- PLAN-REVIEW-REPORT -->
+
 # Plan Review: Gate product routes (F-01)
 
 - **Plan**: context/changes/gate-product-routes/plan.md
@@ -9,20 +10,21 @@
 
 ## Verdicts
 
-| Dimension | Verdict |
-|-----------|---------|
-| End-State Alignment | PASS |
-| Lean Execution | PASS |
-| Architectural Fitness | PASS |
-| Blind Spots | WARNING |
-| Plan Completeness | WARNING |
+| Dimension             | Verdict |
+| --------------------- | ------- |
+| End-State Alignment   | PASS    |
+| Lean Execution        | PASS    |
+| Architectural Fitness | PASS    |
+| Blind Spots           | WARNING |
+| Plan Completeness     | WARNING |
 
 ## Grounding
+
 4/4 paths ✓, 3/3 symbols ✓ (PROTECTED_ROUTES, context.locals.user, createClient), brief↔plan ✓. Only `/api/auth/*` product API endpoints exist today.
 
 ## Findings
 
-### F1 — Default-deny 302-redirects future product /api/* instead of 401
+### F1 — Default-deny 302-redirects future product /api/\* instead of 401
 
 - **Severity**: 💡 OBSERVATION
 - **Impact**: 🏃 LOW — concerns a downstream slice, not F-01

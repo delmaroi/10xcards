@@ -70,6 +70,9 @@ const astroConfig = tseslint.config({
 
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
+  // E2E lives outside the app tsconfig (Playwright typechecks its own tests).
+  // Re-enable once @playwright/test is installed if you want them linted here.
+  { ignores: ["e2e/**", "playwright.config.ts"] },
   baseConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],

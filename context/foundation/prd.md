@@ -43,13 +43,16 @@ Najmniejszy przepływ end-to-end, który udowadnia działanie produktu (zatwierd
 6. Uruchamia powtórki (gotowy algorytm) i przerabia fiszki.
 
 ### Primary
+
 - ≥ 75% fiszek wygenerowanych przez AI jest akceptowanych przez użytkownika (bez odrzucenia).
 - ≥ 75% wszystkich tworzonych fiszek powstaje z wykorzystaniem AI (a nie ręcznie).
 
 ### Secondary
+
 - Retencja: użytkownicy wracają na kolejne sesje powtórek (oznaka wejścia w nawyk) — pożądana, lecz niewystarczająca sama w sobie.
 
 ### Guardrails
+
 - Tekst wklejany do generowania pozostaje prywatny — nie wycieka i nie jest dostępny innym użytkownikom ani publicznie.
 - Pełna izolacja danych między kontami — użytkownik nigdy nie widzi fiszek ani danych innego użytkownika.
 - Brak utraty danych — raz zaakceptowane/zapisane fiszki nie giną.
@@ -64,6 +67,7 @@ Najmniejszy przepływ end-to-end, który udowadnia działanie produktu (zatwierd
 - **Then** widzi listę wygenerowanych propozycji fiszek, a dla każdej może ją zaakceptować, edytować lub odrzucić; zaakceptowane trafiają do jego talii
 
 #### Acceptance Criteria
+
 - Każda wygenerowana fiszka ma stronę pytania i odpowiedzi i jest osobno akceptowalna/edytowalna/odrzucalna.
 - Odrzucenie fiszki nie zapisuje jej do talii; akceptacja zapisuje ją trwale.
 - Puste lub zbyt krótkie wejście pokazuje czytelny komunikat zamiast generować pustą listę.
@@ -74,6 +78,7 @@ Najmniejszy przepływ end-to-end, który udowadnia działanie produktu (zatwierd
 > Numeracja przeliczona po rundzie Sokratesa w fazie kształtowania (usunięto dawny FR „moderacja treści" → patrz Non-Goals).
 
 ### Konta i dostęp
+
 - FR-001: Użytkownik może uwierzytelnić się przez logowanie federacyjne (SSO), bez tworzenia hasła w produkcie. Priority: must-have
   > Socrates: kontrargument „logowanie federacyjne wyklucza studentów bez konta u dostawcy". Rozstrzygnięcie: utrzymane dla niskiego tarcia w MVP; alternatywa logowania e-mail+hasło zapisana w Open Questions.
 - FR-002: Użytkownik może się wylogować. Priority: must-have
@@ -84,6 +89,7 @@ Najmniejszy przepływ end-to-end, który udowadnia działanie produktu (zatwierd
   > Socrates: kryteria sukcesu (75%) wymagają pomiaru → zbieranie metryk podniesione do must-have; sam interfejs przeglądu metryk dla administratora pozostaje nice-to-have.
 
 ### Generowanie fiszek przez AI
+
 - FR-005: Użytkownik może wkleić tekst i wygenerować z niego propozycje fiszek przez AI. Priority: must-have
   > Socrates: ryzyko „niska jakość = utrata zaufania" → wprowadzić limit długości wejścia i traktować jakość jako guardrail (patrz NFR). Utrzymane.
 - FR-006: Użytkownik może dla każdej wygenerowanej fiszki ją zaakceptować, edytować lub odrzucić. Priority: must-have
@@ -92,6 +98,7 @@ Najmniejszy przepływ end-to-end, który udowadnia działanie produktu (zatwierd
   > Socrates: trywialne następstwo akceptacji; utrzymane jako osobny FR dla jasności.
 
 ### Ręczne tworzenie i zarządzanie
+
 - FR-008: Użytkownik może ręcznie utworzyć fiszkę. Priority: nice-to-have
   > Socrates: potrzebne jako uzupełnienie (dopisanie własnej fiszki, której AI nie wygenerowało). Utrzymane jako nice-to-have.
 - FR-009: Użytkownik może przeglądać swoje fiszki. Priority: must-have
@@ -102,6 +109,7 @@ Najmniejszy przepływ end-to-end, który udowadnia działanie produktu (zatwierd
   > Socrates: niezbędne do higieny talii. Utrzymane.
 
 ### Powtórki
+
 - FR-012: Użytkownik może uruchomić sesję powtórek opartą o gotowy algorytm spaced repetition. Priority: must-have
   > Socrates: rdzeń wartości — bez powtórek produkt to tylko generator fiszek. Utrzymane must-have. (Uwaga: integracja gotowego algorytmu to potencjalny ukryty koszt — pilnować w planowaniu.)
 
@@ -133,12 +141,14 @@ Niezalogowany użytkownik trafiający na chronioną ścieżkę jest kierowany do
 ## Non-Goals
 
 Funkcjonalne:
+
 - **Własny zaawansowany algorytm powtórek** (jak SuperMemo/Anki) — korzystamy z gotowego algorytmu; budowa własnego to ogromny zakres bez wartości dla MVP.
 - **Import wielu formatów (PDF, DOCX itp.)** — wyłącznie wklejanie tekstu; parsowanie plików to kosztowna obsługa formatów odłożona poza MVP.
 - **Współdzielenie zestawów fiszek między użytkownikami** — dane są prywatne i jednoosobowe; brak współdzielenia pociąga też brak moderacji treści między użytkownikami.
 - **Integracje z innymi platformami edukacyjnymi** — brak w MVP.
 
 Niefunkcjonalne / platformowe:
+
 - **Aplikacje mobilne** — MVP jest web-only; brak natywnej aplikacji mobilnej.
 
 ## Open Questions

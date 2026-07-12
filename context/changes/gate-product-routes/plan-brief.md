@@ -16,11 +16,11 @@ Any route not on the public allowlist (`/`, `/auth/*`, `/api/auth/*`, static ass
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-| --- | --- | --- | --- |
-| Gating strategy | Default-deny (public allowlist) | New product routes are protected automatically — safe default matching the PRD guardrail | Plan |
-| Landing for authed users | Redirect `/` → `/dashboard` | Logged-in users go straight to the product; landing is for logged-out visitors | Plan |
-| Auth provider | Keep email/password | SSO is a non-blocking Open Roadmap Question | Roadmap |
+| Decision                 | Choice                          | Why (1 sentence)                                                                         | Source  |
+| ------------------------ | ------------------------------- | ---------------------------------------------------------------------------------------- | ------- |
+| Gating strategy          | Default-deny (public allowlist) | New product routes are protected automatically — safe default matching the PRD guardrail | Plan    |
+| Landing for authed users | Redirect `/` → `/dashboard`     | Logged-in users go straight to the product; landing is for logged-out visitors           | Plan    |
+| Auth provider            | Keep email/password             | SSO is a non-blocking Open Roadmap Question                                              | Roadmap |
 
 ## Scope
 
@@ -34,10 +34,10 @@ Single choke point: `src/middleware.ts`. After resolving `context.locals.user`, 
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-| --- | --- | --- |
-| 1. Default-deny gating | Everything protected except the allowlist | Over-broad match redirecting static assets → redirect loop / broken styling |
-| 2. Authed landing redirect | Logged-in `/` → `/dashboard` | Redirect loop if dashboard/landing misclassified |
+| Phase                      | What it delivers                          | Key risk                                                                    |
+| -------------------------- | ----------------------------------------- | --------------------------------------------------------------------------- |
+| 1. Default-deny gating     | Everything protected except the allowlist | Over-broad match redirecting static assets → redirect loop / broken styling |
+| 2. Authed landing redirect | Logged-in `/` → `/dashboard`              | Redirect loop if dashboard/landing misclassified                            |
 
 **Prerequisites:** none (F-01 is `ready`; auth baseline present).
 **Estimated effort:** ~1 short session, 2 phases, one file.

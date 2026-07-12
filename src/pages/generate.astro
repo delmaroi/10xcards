@@ -1,0 +1,11 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { GenerateForm } from "@/components/generate/GenerateForm";
+---
+
+<Layout title="Generate flashcards">
+  <main class="min-h-screen p-6 text-white">
+    <h1 class="mb-4 text-2xl font-bold">Generate flashcards</h1>
+    <GenerateForm client:load />
+  </main>
+</Layout>
