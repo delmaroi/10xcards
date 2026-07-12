@@ -202,14 +202,14 @@ The user-facing due-queue session.
 
 #### Automated
 
-- [ ] 1.1 Type/astro check passes: `npx astro sync && npx astro check`
-- [ ] 1.2 Lint passes: `npm run lint`
-- [ ] 1.3 Build passes: `npm run build`
-- [ ] 1.4 Migration applies cleanly against local Supabase
+- [x] 1.1 Type/astro check passes: `npx astro sync && npx astro check` (0 errors)
+- [x] 1.2 Lint passes: `npm run lint`
+- [x] 1.3 Build passes: `npm run build`
+- [x] 1.4 Migration N/A — `review_state jsonb` already shipped in F-02 migration `20260710120000_create_flashcards.sql:14`; no new migration needed
 
 #### Manual
 
-- [ ] 1.5 `ts-fsrs` imports; `emptyReviewState()` returns a Card with due/stability/difficulty/state
+- [x] 1.5 `ts-fsrs` imports; `emptyReviewState()` returns a Card with due/stability/difficulty/state — confirmed via node probe + `src/lib/srs.test.ts` (4 tests, incl. jsonb round-trip)
 
 ### Phase 2: Rating-submission API
 

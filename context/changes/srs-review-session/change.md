@@ -1,9 +1,9 @@
 ---
 change_id: srs-review-session
 title: Spaced-repetition review session over saved cards
-status: planned
+status: implementing
 created: 2026-07-08
-updated: 2026-07-08
+updated: 2026-07-12
 archived_at: null
 ---
 
