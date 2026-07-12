@@ -21,7 +21,7 @@ A `flashcards` table with RLS enabled and per-operation owner policies. An authe
 | --------------- | ------------------------------------------- | ---------------------------------------------------------- | -------- |
 | Deck model      | Single implicit deck (`flashcards.user_id`) | PRD "talia" is singular; minimal; unblocks S-01/S-02       | Plan     |
 | Drafts          | Ephemeral (only accepted persist)           | F-02 = just the deck; drafts are S-01's flow               | Plan     |
-| `review_state`  | Add `jsonb null` now                        | SRS spike; avoids a 2nd migration; lazy-init in S-04       | Research |
+| `review_state`  | Add `jsonb null` now                        | SRS spike; avoids a 2nd migration; lazy-init in S-05       | Research |
 | `source` column | Include (`ai`/`manual`)                     | Feeds FR-004's AI-share metric; cheap now                  | Plan     |
 | Isolation       | Supabase RLS, `auth.uid() = user_id`        | The data-isolation guardrail lives in the DB, not app code | PRD      |
 
@@ -29,7 +29,7 @@ A `flashcards` table with RLS enabled and per-operation owner policies. An authe
 
 **In scope:** one migration (table + RLS + 4 owner policies + `updated_at` trigger); `Flashcard`/`FlashcardInput` types.
 
-**Out of scope:** decks table, drafts table, data-access helper/API/UI (S-01/S-02), SRS logic (S-04), admin policies.
+**Out of scope:** decks table, drafts table, data-access helper/API/UI (S-01/S-02), SRS logic (S-05), admin policies.
 
 ## Architecture / Approach
 

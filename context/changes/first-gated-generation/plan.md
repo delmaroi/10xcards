@@ -27,7 +27,7 @@ Verify: paste text → proposals appear with progress shown; accept/edit/reject 
 
 - **No persistence of proposals or accepted cards** — that's S-02 (atomic save to `flashcards`). S-01 ends when the user has triaged.
 - **No manual card creation** (FR-008, nice-to-have) or bulk "accept all" (PRD Open Q3) — later.
-- **No SRS / review_state** — S-04.
+- **No SRS / review_state** — S-05.
 - **No per-user optimized LLM params** — default model + prompt.
 
 ## Critical Implementation Details

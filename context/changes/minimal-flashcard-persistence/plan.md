@@ -2,13 +2,13 @@
 
 ## Overview
 
-Create the persistence foundation the whole product stands on: a single `flashcards` table owned per-user, isolated by Supabase Row-Level Security so a card is readable/writable only by its owner. This is roadmap foundation F-02 (PRD FR-007 + the data-isolation guardrail); it unlocks S-01 (generation), S-02 (save-to-deck), S-03 (edit/delete), S-04 (review), S-05.
+Create the persistence foundation the whole product stands on: a single `flashcards` table owned per-user, isolated by Supabase Row-Level Security so a card is readable/writable only by its owner. This is roadmap foundation F-02 (PRD FR-007 + the data-isolation guardrail); it unlocks S-01 (generation), S-02 (save-to-deck), S-03 (edit/delete), S-04 (metrics), S-05 (review).
 
 ## Current State Analysis
 
 - **No data layer today** — `supabase/` has only `config.toml`, no `migrations/`, no domain tables (Supabase is used for `auth.users` only). No `src/types.ts`.
 - **Auth is present & reusable** — `src/lib/supabase.ts:5-24` provides the SSR client (`createClient(headers, cookies)`); `src/middleware.ts` resolves `context.locals.user`. RLS keys off `auth.uid()`, which the SSR client carries via the user's session cookie.
-- **SRS contract (F-03 spike)** — review state will be stored as the `ts-fsrs` `Card` object in a JSON column on the flashcard row; lazy-initialized in S-04.
+- **SRS contract (F-03 spike)** — review state will be stored as the `ts-fsrs` `Card` object in a JSON column on the flashcard row; lazy-initialized in S-05.
 
 ## Desired End State
 
@@ -19,7 +19,7 @@ Verify: apply the migration; as user A insert a card and read it back; as user B
 ### Key Discoveries:
 
 - RLS isolation is the whole point of F-02 — the guardrail "pełna izolacja danych między kontami" (PRD Success Criteria) lives here, not in app code.
-- `review_state jsonb null` is added now (per the SRS spike) so S-04 needs no second migration; nullable → lazy-init later.
+- `review_state jsonb null` is added now (per the SRS spike) so S-05 needs no second migration; nullable → lazy-init later.
 - `source` (`ai` | `manual`) is included so FR-004's "share of AI-created cards" metric has a column to read later — cheap now, awkward to backfill.
 
 ## What We're NOT Doing
@@ -27,7 +27,7 @@ Verify: apply the migration; as user A insert a card and read it back; as user B
 - **No `decks` table** — single implicit deck (cards belong directly to the user); PRD's "talia" is singular. Named decks are future scope.
 - **No `flashcard_drafts` table** — AI proposals are ephemeral; only accepted cards persist (that's S-01/S-02's flow). F-02 is just the persistent deck.
 - **No data-access helper / API / UI** — those are S-01/S-02. F-02 is schema + RLS + types.
-- **No SRS logic** — only the empty `review_state` column; ts-fsrs wiring is S-04.
+- **No SRS logic** — only the empty `review_state` column; ts-fsrs wiring is S-05.
 - **No admin/role policies** — Access Control's admin surface is later.
 
 ## Implementation Approach
@@ -96,7 +96,7 @@ Give the app a typed view of the row.
 
 **Intent**: Add the shared `Flashcard` type (mirrors the columns) and a `FlashcardInput` for inserts (owner + content fields the app sets), so S-01/S-02 import a single source of truth.
 
-**Contract**: `Flashcard` = `{ id: string; user_id: string; front: string; back: string; source: "ai" | "manual"; review_state: unknown | null; created_at: string; updated_at: string }`. `FlashcardInput` = the subset the app provides on insert (`front`, `back`, `source`; `user_id` derived from the session). `review_state` typed loosely (`unknown`/`Json | null`) until S-04 imports the ts-fsrs `Card` type.
+**Contract**: `Flashcard` = `{ id: string; user_id: string; front: string; back: string; source: "ai" | "manual"; review_state: unknown | null; created_at: string; updated_at: string }`. `FlashcardInput` = the subset the app provides on insert (`front`, `back`, `source`; `user_id` derived from the session). `review_state` typed loosely (`unknown`/`Json | null`) until S-05 imports the ts-fsrs `Card` type.
 
 ### Success Criteria:
 

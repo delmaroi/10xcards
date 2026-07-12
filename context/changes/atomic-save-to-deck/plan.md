@@ -16,7 +16,7 @@ Verify: accept N proposals → save → `/deck` shows exactly those N; rejected 
 
 ## What We're NOT Doing
 - **No edit/delete of saved cards** — that's S-03.
-- **No SRS** — `review_state` stays null (S-04).
+- **No SRS** — `review_state` stays null (S-05).
 - **No per-card save** — the accepted set saves as one atomic batch.
 
 ## Critical Implementation Details

@@ -3,14 +3,14 @@ topic: SRS algorithm + TypeScript library choice for review sessions (F-03 spike
 researcher: external research (WebSearch + WebFetch grounding)
 date: 2026-07-08
 change_id: srs-library-spike
-unblocks: srs-review-session (S-04), Open Roadmap Question 4
+unblocks: srs-review-session (S-05), Open Roadmap Question 4
 ---
 
 # SRS Library Spike — External Research
 
 ## Question
 
-Which spaced-repetition **algorithm** and **TypeScript library** should 10xCards use for review sessions (S-04), and what is its current API contract? This is a contract decision — the choice fixes the `ReviewState` shape, the rating scale, and the edit-vs-reset policy that propagate through S-04.
+Which spaced-repetition **algorithm** and **TypeScript library** should 10xCards use for review sessions (S-05), and what is its current API contract? This is a contract decision — the choice fixes the `ReviewState` shape, the rating scale, and the edit-vs-reset policy that propagate through S-05.
 
 > Grounding note: Exa.ai and Context7 MCP (the lesson's tools) require per-account credentials, so this spike used the built-in **WebSearch/WebFetch** for the same effect — decisions are grounded in current sources, not model training memory. Facts below carry source links.
 
@@ -60,7 +60,7 @@ console.log(result.log); // ReviewLog
 - **`Card`** fields: `due`, `stability`, `difficulty`, `state`, `reps`, `lapses` (plus `elapsed_days`, `scheduled_days`, `last_review` in the full type). ([npm](https://www.npmjs.com/package/ts-fsrs))
 - Key exports: `createEmptyCard`, `fsrs`, `generatorParameters`, `Rating`, `State`, `Card`, `RecordLog`/`ReviewLog`.
 
-## Fit with 10xCards (contract decisions this fixes for S-04)
+## Fit with 10xCards (contract decisions this fixes for S-05)
 
 - **ReviewState shape** → store the whole `Card` object (from `createEmptyCard`, updated via `scheduler.next(...).card`) as JSON on the flashcard row (e.g. a `review_state` column). Depends on **F-02** (flashcard persistence) existing first.
 - **Rating scale** → 4 buttons: `Again / Hard / Good / Easy`.
@@ -69,7 +69,7 @@ console.log(result.log); // ReviewLog
 
 ## Open Questions (leave explicit — do NOT let the plan guess)
 
-1. **Edit-vs-reset policy** — when a user edits a saved card's front/back, does its `Card` review state reset or persist? FSRS state is tied to the item; a content change may warrant a reset. Owner: user. Decide in S-04 plan.
+1. **Edit-vs-reset policy** — when a user edits a saved card's front/back, does its `Card` review state reset or persist? FSRS state is tied to the item; a content change may warrant a reset. Owner: user. Decide in S-05 plan.
 2. **Where model parameters live** — default `fsrs()` params vs per-user optimized params (needs `@open-spaced-repetition/binding` optimizer + review history). MVP: default params. Owner: user.
 3. **Timezone / "today" boundary** for due-date comparison. Owner: downstream plan.
 

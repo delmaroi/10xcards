@@ -1,14 +1,14 @@
-# SRS Review Session (S-04) Implementation Plan
+# SRS Review Session (S-05) Implementation Plan
 
 ## Overview
 
-Add a spaced-repetition review session: the user opens `/review`, sees each card due today, rates it (Again / Hard / Good / Easy), and the card's review state is rescheduled via FSRS. This is roadmap slice S-04 (PRD US-01, FR-012). Algorithm/library and data-shape decisions are settled by the F-03 spike (`context/changes/srs-library-spike/research.md`) → **FSRS via `ts-fsrs`**.
+Add a spaced-repetition review session: the user opens `/review`, sees each card due today, rates it (Again / Hard / Good / Easy), and the card's review state is rescheduled via FSRS. This is roadmap slice S-05 (PRD US-01, FR-012). Algorithm/library and data-shape decisions are settled by the F-03 spike (`context/changes/srs-library-spike/research.md`) → **FSRS via `ts-fsrs`**.
 
 ## Current State Analysis
 
 Grounded in `context/changes/srs-review-session/research.md` (commit d34459a):
 
-- **Data layer is absent** — no flashcard/deck table, no migrations, no `src/types.ts`. S-04 rides on a `flashcard` table that **F-02 must create** and **S-02 must populate**.
+- **Data layer is absent** — no flashcard/deck table, no migrations, no `src/types.ts`. S-05 rides on a `flashcard` table that **F-02 must create** and **S-02 must populate**.
 - **Auth/gating is present and reusable** — `src/middleware.ts:19-46` sets `context.locals.user` and default-deny-gates every non-public route, so `/review` and `/api/review/*` are auto-protected with no extra work.
 - **Conventions to follow**: server Supabase client via `createClient(...)` (`src/lib/supabase.ts:5-24`); API endpoints as `export const POST: APIRoute` reading the user from `context.locals.user` (`src/pages/api/auth/signin.ts:4-20`); `@/*` imports; secrets via `astro:env/server`.
 - **Stack compatible** with `ts-fsrs` (Node ≥20; repo runs 22.14.0).
@@ -27,7 +27,7 @@ Verify: seed a user's deck with cards (via F-02/S-02); some due now. Open `/revi
 
 ## What We're NOT Doing
 
-- **Not building F-02 (flashcard table + RLS) or S-01/S-02 (generation, save-to-deck)** — hard prerequisites; this plan assumes the `flashcard` table exists with per-user RLS. **S-04 is blocked until F-02 and S-02 land.**
+- **Not building F-02 (flashcard table + RLS) or S-01/S-02 (generation, save-to-deck)** — hard prerequisites; this plan assumes the `flashcard` table exists with per-user RLS. **S-05 is blocked until F-02 and S-02 land.**
 - Not using per-user optimized FSRS parameters — MVP uses default `fsrs()` params (see Open Questions).
 - Not building card edit/delete (that's S-03).
 - Not adding a metrics/streaks dashboard.
@@ -183,20 +183,20 @@ The user-facing due-queue session.
 - Library spike (contract source): `context/changes/srs-library-spike/research.md`
 - Endpoint reference shape: `src/pages/api/auth/signin.ts:4-20`
 - Gating substrate: `src/middleware.ts:19-46`
-- Roadmap: `context/foundation/roadmap.md` (S-04)
+- Roadmap: `context/foundation/roadmap.md` (S-05)
 
 ## Open Questions
 
 > Left explicit per the F-03 spike — the plan does NOT guess these. Resolve before/at implementation.
 
-1. **Edit-vs-reset policy** — when a card's front/back is edited (S-03), does its `review_state` reset (`createEmptyCard`) or persist? FSRS state is tied to the item; a content change may warrant a reset. Owner: user. Blocks: clean interaction between S-03 and S-04, not this plan's core.
+1. **Edit-vs-reset policy** — when a card's front/back is edited (S-03), does its `review_state` reset (`createEmptyCard`) or persist? FSRS state is tied to the item; a content change may warrant a reset. Owner: user. Blocks: clean interaction between S-03 and S-05, not this plan's core.
 2. **Model parameters** — default `fsrs()` params for MVP vs per-user optimized params (needs the optimizer + review history). MVP assumption: default params. Owner: user.
 3. **"Today" boundary / timezone** — is "due today" evaluated in UTC or the user's local time? Affects the due query in Phase 3. Owner: user.
 
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
-> NOTE: S-04 is BLOCKED until F-02 (flashcard table + RLS) and S-02 (save-to-deck) exist. Do not start Phase 1 before then.
+> NOTE: S-05 is BLOCKED until F-02 (flashcard table + RLS) and S-02 (save-to-deck) exist. Do not start Phase 1 before then.
 
 ### Phase 1: Data & scheduler foundation
 

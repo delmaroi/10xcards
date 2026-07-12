@@ -11,7 +11,7 @@ Make the deck manageable: browse, edit and delete saved cards (FR-009/010/011). 
 `/deck` renders an interactive list. Each card can be edited inline (Save persists front/back) or deleted (with confirm). Only the owner's cards can be changed (RLS); editing/deleting a card you don't own returns 404. Reload reflects persisted changes.
 
 ## What We're NOT Doing
-- No SRS/review (S-04). No manual create (FR-008). No bulk ops.
+- No SRS/review (S-05). No manual create (FR-008). No bulk ops.
 
 ## Critical Implementation Details
 - **Ownership check via affected rows:** update/delete with `.eq("id", id).select("id")` — RLS makes a non-owner's statement affect 0 rows → return 404, not a leak.

@@ -1,4 +1,4 @@
-# SRS Review Session (S-04) — Plan Brief
+# SRS Review Session (S-05) — Plan Brief
 
 > Full plan: `context/changes/srs-review-session/plan.md`
 > Research: `context/changes/srs-review-session/research.md`
@@ -6,11 +6,11 @@
 
 ## What & Why
 
-Give the deck a purpose: a spaced-repetition review session where the user rates each due card and FSRS reschedules it. Roadmap slice S-04 (PRD US-01, FR-012) — without it, a deck of cards is just a nicer notepad.
+Give the deck a purpose: a spaced-repetition review session where the user rates each due card and FSRS reschedules it. Roadmap slice S-05 (PRD US-01, FR-012) — without it, a deck of cards is just a nicer notepad.
 
 ## Starting Point
 
-10xCards is auth + UI scaffolding only (research, commit d34459a). Auth/session and default-deny gating are solid and reusable; there is **no flashcard table, no persistence, no SRS dependency** yet. S-04 rides on a `flashcard` table that F-02 must create and S-02 must populate.
+10xCards is auth + UI scaffolding only (research, commit d34459a). Auth/session and default-deny gating are solid and reusable; there is **no flashcard table, no persistence, no SRS dependency** yet. S-05 rides on a `flashcard` table that F-02 must create and S-02 must populate.
 
 ## Desired End State
 
@@ -24,7 +24,7 @@ A logged-in user opens `/review`, goes through all cards due today (reveal answe
 | ReviewState shape    | `ts-fsrs` `Card` object as JSON in `review_state` column | Store what the scheduler returns; no lossy mapping                            | Spike (F-03) |
 | Rating scale         | 4 buttons: Again/Hard/Good/Easy                          | FSRS's grade scale                                                            | Spike (F-03) |
 | Due selection        | `review_state` null OR `due <= now`                      | Simple, index-friendly predicate                                              | Research     |
-| State init ownership | S-04 lazy-inits via `createEmptyCard()` on first review  | Keeps S-04 self-sufficient; robust to cards created before S-04               | Plan         |
+| State init ownership | S-05 lazy-inits via `createEmptyCard()` on first review  | Keeps S-05 self-sufficient; robust to cards created before S-05               | Plan         |
 | Session scope        | Full due-queue session on `/review`                      | Real "review session" per FR-012, not a single card                           | Plan         |
 
 ## Scope
@@ -45,7 +45,7 @@ Three vertical phases on the assumed `flashcard` table: data + scheduler helper 
 | 2. Rating API       | `/api/review/submit-rating` (lazy-init + reschedule)     | RLS must scope card access to the user                          |
 | 3. Review page      | `/review` + `ReviewSession` island (due queue)           | "today" boundary/timezone (open question) affects the due query |
 
-**Prerequisites:** F-02 (flashcard table + RLS) and S-02 (save-to-deck) must exist. **S-04 is blocked until then.** F-03 spike is done (library chosen).
+**Prerequisites:** F-02 (flashcard table + RLS) and S-02 (save-to-deck) must exist. **S-05 is blocked until then.** F-03 spike is done (library chosen).
 **Estimated effort:** ~1–2 sessions across 3 phases once prerequisites land.
 
 ## Open Risks & Assumptions
