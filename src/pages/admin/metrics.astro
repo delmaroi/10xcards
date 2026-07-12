@@ -1,0 +1,77 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { createClient } from "@/lib/supabase";
+import { isAdmin } from "@/lib/is-admin";
+import { ADMIN_EMAILS } from "astro:env/server";
+
+// S-04 minimal metrics surface (PRD: collection must-have, this view nice-to-have).
+// Gated to the ADMIN_EMAILS allowlist on top of the middleware login gate.
+const user = Astro.locals.user;
+const admin = isAdmin(user?.email, ADMIN_EMAILS);
+
+let acceptanceRate: number | null = null;
+let aiShare: number | null = null;
+let generatedTotal = 0;
+let batches = 0;
+let cardsTotal = 0;
+
+if (admin) {
+  const supabase = createClient(Astro.request.headers, Astro.cookies);
+  if (supabase) {
+    // RLS scopes reads to the caller's own rows — org-wide aggregation is deferred
+    // (needs a service-role read). Metrics below are over the data this account sees.
+    const { data: stats } = await supabase.from("generation_stats").select("generated, accepted");
+    const rows = stats ?? [];
+    batches = rows.length;
+    generatedTotal = rows.reduce((s, r) => s + (r.generated as number), 0);
+    const acceptedTotal = rows.reduce((s, r) => s + (r.accepted as number), 0);
+    acceptanceRate = generatedTotal > 0 ? acceptedTotal / generatedTotal : null;
+
+    const { data: cards } = await supabase.from("flashcards").select("source");
+    const cardRows = cards ?? [];
+    cardsTotal = cardRows.length;
+    const aiCards = cardRows.filter((c) => c.source === "ai").length;
+    aiShare = cardsTotal > 0 ? aiCards / cardsTotal : null;
+  }
+}
+
+if (!admin) {
+  Astro.response.status = 403;
+}
+
+const pct = (v: number | null) => (v == null ? "—" : `${(v * 100).toFixed(1)}%`);
+---
+
+<Layout title="Metrics">
+  <main class="bg-cosmic min-h-screen p-6 text-white">
+    <h1 class="mb-4 text-2xl font-bold">Success metrics</h1>
+
+    {
+      !admin ? (
+        <p role="alert" class="text-red-300">
+          Not authorized. This page is restricted to administrators.
+        </p>
+      ) : (
+        <div class="flex max-w-xl flex-col gap-4">
+          <p class="text-sm opacity-60">
+            Scoped to your account — org-wide aggregation is deferred (needs a service-role read).
+          </p>
+
+          <div class="rounded-md border border-white/20 p-4">
+            <p class="text-sm opacity-70">AI acceptance rate (target ≥ 75%)</p>
+            <p class="text-3xl font-bold">{pct(acceptanceRate)}</p>
+            <p class="text-xs opacity-50">
+              over {generatedTotal} generated in {batches} batch(es)
+            </p>
+          </div>
+
+          <div class="rounded-md border border-white/20 p-4">
+            <p class="text-sm opacity-70">AI-created share (target ≥ 75%)</p>
+            <p class="text-3xl font-bold">{pct(aiShare)}</p>
+            <p class="text-xs opacity-50">of {cardsTotal} saved card(s)</p>
+          </div>
+        </div>
+      )
+    }
+  </main>
+</Layout>

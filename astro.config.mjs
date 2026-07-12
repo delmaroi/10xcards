@@ -23,6 +23,9 @@ export default defineConfig({
       SUPABASE_URL: envField.string({ context: "server", access: "secret", optional: true }),
       SUPABASE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
       OPENROUTER_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      // Comma-separated admin email allowlist (S-04 metrics gate). Not a secret, but
+      // server-only. Empty/unset → nobody is admin.
+      ADMIN_EMAILS: envField.string({ context: "server", access: "public", optional: true }),
     },
   },
 });

@@ -1,7 +1,10 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { isAdmin } from "@/lib/is-admin";
+import { ADMIN_EMAILS } from "astro:env/server";
 
 const { user } = Astro.locals;
+const admin = isAdmin(user?.email, ADMIN_EMAILS);
 ---
 
 <Layout title="Dashboard">
@@ -33,6 +36,16 @@ const { user } = Astro.locals;
         >
           Review
         </a>
+        {
+          admin && (
+            <a
+              href="/admin/metrics"
+              class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+            >
+              Metrics
+            </a>
+          )
+        }
       </nav>
       <form method="POST" action="/api/auth/signout" class="mt-6">
         <button

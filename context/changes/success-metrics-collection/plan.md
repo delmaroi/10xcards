@@ -114,18 +114,18 @@ Unit-test the framework-free handler + `isAdmin` (colocated `*.test.ts`, matchin
 
 ### Phase 2: record stats at save
 #### Automated
-- [x] 2.1 Unit: handler 401/400/500/201 + count validation + single insert (6 tests)
-- [x] 2.2 lint passes
-- [x] 2.3 build passes
+- [x] 2.1 Unit: handler 401/400/500/201 + count validation + single insert (6 tests) — 6d603c9
+- [x] 2.2 lint passes — 6d603c9
+- [x] 2.3 build passes — 6d603c9
 #### Manual
 - [ ] 2.4 Generate → reject some → save → generation_stats row has correct counts — user step (after migration applied)
 
 ### Phase 3: minimal admin metrics surface
 #### Automated
-- [ ] 3.1 Unit: isAdmin allow/deny
-- [ ] 3.2 astro check passes
-- [ ] 3.3 lint passes
-- [ ] 3.4 build passes
+- [x] 3.1 Unit: isAdmin allow/deny (4 tests)
+- [x] 3.2 astro check passes (0 errors)
+- [x] 3.3 lint passes
+- [x] 3.4 build passes
 #### Manual
-- [ ] 3.5 Admin email sees both metrics at /admin/metrics
-- [ ] 3.6 Non-admin logged-in user is refused; logged-out → signin
+- [ ] 3.5 Admin email sees both metrics at /admin/metrics — user step (needs ADMIN_EMAILS + migration + login)
+- [ ] 3.6 Non-admin logged-in user is refused (403 render); logged-out → signin (middleware) — user step
