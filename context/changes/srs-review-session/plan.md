@@ -215,26 +215,26 @@ The user-facing due-queue session.
 
 #### Automated
 
-- [x] 2.1 Lint passes: `npm run lint`
-- [x] 2.2 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint` — caa89e0
+- [x] 2.2 Build passes: `npm run build` — caa89e0
 
 #### Manual
 
-- [x] 2.3 POST rating moves `review_state.due` to future, increments `reps` — unit-covered (`review-rating.test.ts`); live-DB check → R1 integration test
-- [x] 2.4 Rating a card with null `review_state` lazy-inits without error — unit-covered (lazy-init test)
-- [x] 2.5 A user cannot rate another user's card (RLS) — handler maps not-found→404; live RLS → R1 integration test
+- [x] 2.3 POST rating moves `review_state.due` to future, increments `reps` — unit-covered (`review-rating.test.ts`); live-DB check → R1 integration test — caa89e0
+- [x] 2.4 Rating a card with null `review_state` lazy-inits without error — unit-covered (lazy-init test) — caa89e0
+- [x] 2.5 A user cannot rate another user's card (RLS) — handler maps not-found→404; live RLS → R1 integration test — caa89e0
 
 ### Phase 3: Review session page
 
 #### Automated
 
-- [ ] 3.1 Type/astro check passes: `npx astro sync && npx astro check`
-- [ ] 3.2 Lint passes: `npm run lint`
-- [ ] 3.3 Build passes: `npm run build`
+- [x] 3.1 Type/astro check passes: `npx astro sync && npx astro check` (0 errors)
+- [x] 3.2 Lint passes: `npm run lint`
+- [x] 3.3 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 3.4 Logged in with due cards: `/review` walks the queue (reveal + rate advances)
-- [ ] 3.5 Rating persists (reload → card no longer due today)
-- [ ] 3.6 Empty queue shows done / nothing-due state
-- [ ] 3.7 Logged out: `/review` redirects to `/auth/signin`
+- [ ] 3.4 Logged in with due cards: `/review` walks the queue (reveal + rate advances) — user browser step
+- [ ] 3.5 Rating persists (reload → card no longer due today) — user browser step
+- [ ] 3.6 Empty queue shows done / nothing-due state — user browser step
+- [x] 3.7 Logged out: `/review` redirects to `/auth/signin` — covered by default-deny middleware + `route-access` tests (unknown routes protected)
