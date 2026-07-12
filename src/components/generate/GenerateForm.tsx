@@ -12,6 +12,7 @@ interface Proposal {
   front: string;
   back: string;
   decision: Decision;
+  edited: boolean;
 }
 
 interface GenerateResponse {
@@ -50,7 +51,9 @@ export function GenerateForm() {
         return;
       }
       const data = (await res.json()) as GenerateResponse;
-      setProposals((data.proposals ?? []).map((p) => ({ front: p.front, back: p.back, decision: "pending" })));
+      setProposals(
+        (data.proposals ?? []).map((p) => ({ front: p.front, back: p.back, decision: "pending", edited: false })),
+      );
       setStatus("idle");
     } catch {
       setStatus("error");
@@ -79,6 +82,17 @@ export function GenerateForm() {
         return;
       }
       setSaveStatus("saved");
+      // Best-effort success-metrics capture (S-04): record the batch's triage counts.
+      // A metrics failure must never affect the save UX, so it's fire-and-forget.
+      void fetch("/api/metrics/generation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          generated: proposals.length,
+          accepted: accepted.length,
+          edited: accepted.filter((p) => p.edited).length,
+        }),
+      }).catch(() => undefined);
     } catch {
       setSaveStatus("error");
       setSaveError("Network error — try again.");
@@ -146,7 +160,7 @@ export function GenerateForm() {
                 className="rounded border border-white/15 bg-transparent p-2 text-sm"
                 value={p.front}
                 onChange={(e) => {
-                  patch(i, { front: e.target.value });
+                  patch(i, { front: e.target.value, edited: true });
                 }}
               />
               <input
@@ -154,7 +168,7 @@ export function GenerateForm() {
                 className="rounded border border-white/15 bg-transparent p-2 text-sm"
                 value={p.back}
                 onChange={(e) => {
-                  patch(i, { back: e.target.value });
+                  patch(i, { back: e.target.value, edited: true });
                 }}
               />
               <div className="flex gap-2">

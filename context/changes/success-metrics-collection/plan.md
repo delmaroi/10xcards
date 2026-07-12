@@ -106,19 +106,19 @@ Unit-test the framework-free handler + `isAdmin` (colocated `*.test.ts`, matchin
 
 ### Phase 1: generation_stats table + type
 #### Automated
-- [x] 1.1 astro check passes (0 errors)
-- [x] 1.2 lint passes
-- [x] 1.3 build passes
+- [x] 1.1 astro check passes (0 errors) — 26b4b74
+- [x] 1.2 lint passes — 26b4b74
+- [x] 1.3 build passes — 26b4b74
 #### Manual
 - [ ] 1.4 Migration applies to cloud Supabase; RLS enabled + 2 owner policies — user step (Studio SQL editor)
 
 ### Phase 2: record stats at save
 #### Automated
-- [ ] 2.1 Unit: handler 401/400/500/201 + count validation + single insert
-- [ ] 2.2 lint passes
-- [ ] 2.3 build passes
+- [x] 2.1 Unit: handler 401/400/500/201 + count validation + single insert (6 tests)
+- [x] 2.2 lint passes
+- [x] 2.3 build passes
 #### Manual
-- [ ] 2.4 Generate → reject some → save → generation_stats row has correct counts
+- [ ] 2.4 Generate → reject some → save → generation_stats row has correct counts — user step (after migration applied)
 
 ### Phase 3: minimal admin metrics surface
 #### Automated
