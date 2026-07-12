@@ -122,10 +122,10 @@ Unit-test the framework-free handler + `isAdmin` (colocated `*.test.ts`, matchin
 
 ### Phase 3: minimal admin metrics surface
 #### Automated
-- [x] 3.1 Unit: isAdmin allow/deny (4 tests)
-- [x] 3.2 astro check passes (0 errors)
-- [x] 3.3 lint passes
-- [x] 3.4 build passes
+- [x] 3.1 Unit: isAdmin allow/deny (4 tests) — 4708334
+- [x] 3.2 astro check passes (0 errors) — 4708334
+- [x] 3.3 lint passes — 4708334
+- [x] 3.4 build passes — 4708334
 #### Manual
 - [ ] 3.5 Admin email sees both metrics at /admin/metrics — user step (needs ADMIN_EMAILS + migration + login)
 - [ ] 3.6 Non-admin logged-in user is refused (403 render); logged-out → signin (middleware) — user step

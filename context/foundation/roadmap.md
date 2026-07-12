@@ -33,7 +33,7 @@ Student przed egzaminem ma dużo materiału i mało czasu; ręczne tworzenie fis
 | S-01 | first-gated-generation        | paste text and triage AI card proposals               | F-01, F-02    | US-01, FR-005, FR-006  | implemented  |
 | S-02 | atomic-save-to-deck           | finalize accepted cards into the deck                 | S-01          | US-01, FR-007, FR-009  | implemented  |
 | S-03 | deck-edit-delete              | browse, edit and delete saved cards                   | S-02          | FR-009, FR-010, FR-011 | implemented  |
-| S-04 | success-metrics-collection    | admin can see AI acceptance-rate and AI-share metrics | S-02          | FR-004                 | proposed     |
+| S-04 | success-metrics-collection    | admin can see AI acceptance-rate and AI-share metrics | S-02          | FR-004                 | implementing |
 | S-05 | srs-review-session            | run a review session and record a card rating         | S-02, F-03    | US-01, FR-012          | implementing |
 
 ## Streams
@@ -152,7 +152,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Minimum viable surface for the admin view (must-have is collection; the rich admin UI is nice-to-have) — Owner: user. Block: no.
 - **Risk:** FR-004 is must-have because the PRD's primary success criteria are numeric (75% thresholds) and cannot be judged without instrumentation. Sequenced right after S-02 because the accept/reject/save events it measures only exist once the gated loop works.
-- **Status:** proposed
+- **Status:** implementing (collection built; manual verification pending)
 
 ### S-05: SRS review session
 
@@ -177,7 +177,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-01       | first-gated-generation        | First gated AI generation loop (paste → triage)    | done                  | ✓ implemented                                 |
 | S-02       | atomic-save-to-deck           | Atomic save of accepted cards to deck (north star) | done                  | ✓ implemented                                 |
 | S-03       | deck-edit-delete              | Browse, edit and delete saved cards                | done                  | ✓ implemented                                 |
-| S-04       | success-metrics-collection    | Collect AI acceptance-rate & AI-share metrics      | yes                   | Unblocked (S-02 shipped); FR-004 still unbuilt — **only remaining must-have** |
+| S-04       | success-metrics-collection    | Collect AI acceptance-rate & AI-share metrics      | in progress           | Collection built (generation_stats + capture + admin view); manual 1.4/2.4/3.5/3.6 pending |
 | S-05       | srs-review-session            | Spaced-repetition review session                   | in progress           | /review built; manual 3.4–3.6 pending e2e run |
 
 ## Open Roadmap Questions
