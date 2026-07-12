@@ -60,9 +60,9 @@ Verify (after Supabase+Google config): click Continue with Google → Google con
 
 ### Phase 1: OAuth endpoints + UI
 #### Automated
-- [x] 1.1 astro check passes (0 errors)
-- [x] 1.2 lint passes
-- [x] 1.3 build passes
+- [x] 1.1 astro check passes (0 errors) — ba7ea56
+- [x] 1.2 lint passes — ba7ea56
+- [x] 1.3 build passes — ba7ea56
 #### Manual (needs Supabase + Google Cloud config)
 - [ ] 1.4 Continue with Google → consent → /dashboard authenticated
 - [ ] 1.5 Missing/failed code → signin with error; email/password still works

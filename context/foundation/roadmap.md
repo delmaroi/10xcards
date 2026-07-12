@@ -54,7 +54,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Frontend:** present — Astro 6 SSR + React 19 islands, Tailwind 4 (`src/components/`, `src/pages/`, `astro.config.mjs`).
 - **Backend / API:** present — Astro API routes for auth (`src/pages/api/auth/{signin,signup,signout}.ts`).
 - **Data:** absent — no migrations, no `supabase/migrations/`, no domain tables. Supabase is used for `auth.users` only. This is the primary Foundations gap.
-- **Auth:** present — Supabase SSR client (`src/lib/supabase.ts`), session middleware with `PROTECTED_ROUTES` (`src/middleware.ts`), auth pages + endpoints. Note: current provider is email/password, not federated SSO (see Open Roadmap Questions).
+- **Auth:** present — Supabase SSR client (`src/lib/supabase.ts`), session middleware with `PROTECTED_ROUTES` (`src/middleware.ts`), auth pages + endpoints. Providers: email/password **+ Google OAuth** (`google-sso`, code-complete; needs Supabase Google-provider + Google Cloud OAuth-client config to function).
 - **Deploy / infra:** present — Cloudflare Workers, deployed live (`10x-cards.mariusz-jarzabek.workers.dev`); secrets via `wrangler secret`. No separate deploy foundation needed. See `context/deployment/deploy-plan.md`.
 - **Observability:** partial — `wrangler.jsonc` `observability.enabled: true` (platform logs via `wrangler tail`); no app-level error tracking or structured logging library.
 
@@ -182,11 +182,11 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Open Roadmap Questions
 
-1. **Federated SSO vs. email/password** — add classic email/password alongside (or instead of) SSO so students without an SSO account aren't excluded? Baseline currently ships email/password. Owner: user. Block: F-01 (no — decision, not a hard blocker).
+1. **Federated SSO vs. email/password** — RESOLVED: both. Google OAuth added (`google-sso`) alongside the existing email/password, so students without Google aren't excluded. Pending Supabase/Google config to go live.
 2. **Pasted-text length limit + generation quality threshold** — concrete upper bound and quality bar (PRD Open Question 2). Owner: user + downstream. Block: S-01 (no — default unblocks).
 3. **Bulk "accept all" action** — needed in MVP when many cards are generated at once (PRD Open Question 3)? Owner: user. Block: none (nice-to-have candidate).
 4. **SRS library / review data model choice** — which ready-made library, what ReviewState + schedule (PRD Open Question 4)? Owner: user + downstream. Block: S-05 (yes) — drives F-03.
-5. **Federated SSO provider** (preference: Google) — concrete provider pick (PRD Open Question 5). Owner: tech-stack step. Block: F-01 (no).
+5. **Federated SSO provider** (preference: Google) — RESOLVED: Google, implemented in `google-sso`.
 6. **LLM provider + privacy posture** — which provider and privacy mode satisfy the "pasted text stays private / not retained after the request" guardrail? Owner: user. Block: S-01 (no — verify on a deployed request).
 
 ## Parked
