@@ -25,3 +25,20 @@ export interface Flashcard {
 export type FlashcardInput = Pick<Flashcard, "front" | "back"> & {
   source?: Flashcard["source"];
 };
+
+/**
+ * One saved generation-triage batch (S-04, FR-004). Feeds the AI acceptance-rate
+ * metric (Σaccepted / Σgenerated). `edited` = accepted proposals the user changed
+ * before saving. Owner-scoped; mirrors `public.generation_stats`.
+ */
+export interface GenerationStat {
+  id: string;
+  user_id: string;
+  generated: number;
+  accepted: number;
+  edited: number;
+  created_at: string;
+}
+
+/** Counts the client reports after a triage-commit; `user_id` derived from the session. */
+export type GenerationStatInput = Pick<GenerationStat, "generated" | "accepted" | "edited">;
