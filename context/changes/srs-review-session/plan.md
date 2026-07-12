@@ -228,13 +228,13 @@ The user-facing due-queue session.
 
 #### Automated
 
-- [x] 3.1 Type/astro check passes: `npx astro sync && npx astro check` (0 errors)
-- [x] 3.2 Lint passes: `npm run lint`
-- [x] 3.3 Build passes: `npm run build`
+- [x] 3.1 Type/astro check passes: `npx astro sync && npx astro check` (0 errors) — 0743096
+- [x] 3.2 Lint passes: `npm run lint` — 0743096
+- [x] 3.3 Build passes: `npm run build` — 0743096
 
 #### Manual
 
 - [ ] 3.4 Logged in with due cards: `/review` walks the queue (reveal + rate advances) — user browser step
 - [ ] 3.5 Rating persists (reload → card no longer due today) — user browser step
 - [ ] 3.6 Empty queue shows done / nothing-due state — user browser step
-- [x] 3.7 Logged out: `/review` redirects to `/auth/signin` — covered by default-deny middleware + `route-access` tests (unknown routes protected)
+- [x] 3.7 Logged out: `/review` redirects to `/auth/signin` — covered by default-deny middleware + `route-access` tests (unknown routes protected) — 0743096
