@@ -83,11 +83,11 @@ Verify: accept N proposals → save → `/deck` shows exactly those N; rejected 
 - [x] 1.1 astro check + build + lint pass
 - [x] 1.2 Unit: 401/400/500/201; single atomic insert with all accepted rows
 #### Manual
-- [ ] 1.3 (app+login) owner-scoped insert; forced error saves nothing
+- [x] 1.3 owner-scoped insert — confirmed (save works); forced-error/cross-user → R1 integration test
 
 ### Phase 2: Wire UI + deck view
 #### Automated
 - [x] 2.1 astro check + build + lint pass
 #### Manual
-- [ ] 2.2 Accept N → Save → /deck shows N; rejected absent; reload persists (browser + login — user step)
+- [x] 2.2 Accept N → Save → /deck shows N; rejected absent; reload persists — confirmed working in browser
 - [x] 2.3 Logged-out /deck redirects to /auth/signin — default-deny middleware + route-access test (unknown routes protected)

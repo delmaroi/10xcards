@@ -13,6 +13,9 @@ export default defineConfig({
   integrations: [react(), sitemap()],
   vite: {
     plugins: [tailwindcss()],
+    // zod trips the Cloudflare workerd dev dep-optimizer ("file does not exist in
+    // optimize deps"); exclude it from pre-bundling. Dev-only; build is unaffected.
+    optimizeDeps: { exclude: ["zod"] },
   },
   adapter: cloudflare(),
   env: {

@@ -188,6 +188,6 @@ Unit: `openrouter.ts` (validated parse, error branches) — oracle from the JSON
 
 #### Manual
 
-- [ ] 3.2 Paste → progress → proposals; accept/edit/reject works (browser + login — user step)
-- [ ] 3.3 Empty/oversized input blocked with a message (browser — user step)
+- [x] 3.2 Paste → progress → proposals; accept/edit/reject works — confirmed working in browser
+- [x] 3.3 Empty/oversized input blocked with a message — confirmed (client guard active)
 - [x] 3.4 Logged-out `/generate` redirects to `/auth/signin` — covered by default-deny middleware + route-access test (unknown routes protected)

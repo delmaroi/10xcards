@@ -1,7 +1,7 @@
 ---
 change_id: deck-edit-delete
 title: Browse, edit and delete saved cards
-status: implementing
+status: implemented
 created: 2026-07-12
 updated: 2026-07-12
 archived_at: null

@@ -1,7 +1,7 @@
 ---
 change_id: atomic-save-to-deck
 title: Atomic save of accepted proposals to the deck + basic deck view
-status: implementing
+status: implemented
 created: 2026-07-10
 updated: 2026-07-10
 archived_at: null

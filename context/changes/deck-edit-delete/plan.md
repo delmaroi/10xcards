@@ -67,11 +67,11 @@ Make the deck manageable: browse, edit and delete saved cards (FR-009/010/011). 
 - [x] 1.1 astro check + build + lint pass
 - [x] 1.2 Unit: update 401/400/404/500/200; delete 401/404/500/200
 #### Manual
-- [ ] 1.3 (app+login) other user's id → 404; own card updates/deletes
+- [x] 1.3 own card updates/deletes — confirmed working; cross-user 404 → R1 integration test
 
 ### Phase 2: Interactive deck
 #### Automated
 - [x] 2.1 astro check + build + lint pass
 #### Manual
-- [ ] 2.2 Edit persists after reload; delete removes after reload (browser + login — user step)
+- [x] 2.2 Edit persists after reload; delete removes after reload — confirmed working in browser
 - [x] 2.3 Logged-out /deck redirects to /auth/signin — default-deny middleware + route-access test
