@@ -22,17 +22,21 @@ export default defineConfig({
   },
   projects: [
     // Logged-out tests (e.g. the auth-gate seed) — need no session.
-    { name: "logged-out", use: { ...devices["Desktop Chrome"] } },
+    {
+      name: "logged-out",
+      testMatch: /seed\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
 
-    // Authenticated tests — reuse a saved session (storageState). ENABLE once
-    // features that require login exist (deck/generation, i.e. F-02 → S-01 → S-02).
-    // Requires e2e/auth.setup.ts filled with a TEST account's credentials.
-    // { name: "setup", testMatch: /auth\.setup\.ts/ },
-    // {
-    //   name: "chromium",
-    //   use: { ...devices["Desktop Chrome"], storageState: "playwright/.auth/user.json" },
-    //   dependencies: ["setup"],
-    //   testIgnore: /auth\.setup\.ts/,
-    // },
+    // Authenticated tests — reuse a saved session (storageState). Enabled with
+    // F-02 → S-04 shipped. Requires a TEST account via E2E_EMAIL / E2E_PASSWORD
+    // (see e2e/auth.setup.ts); never production credentials.
+    { name: "setup", testMatch: /auth\.setup\.ts/ },
+    {
+      name: "chromium",
+      testMatch: /review\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"], storageState: "playwright/.auth/user.json" },
+      dependencies: ["setup"],
+    },
   ],
 });
