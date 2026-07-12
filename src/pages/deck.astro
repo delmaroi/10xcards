@@ -1,0 +1,26 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { createClient } from "@/lib/supabase";
+import { DeckList } from "@/components/deck/DeckList";
+import type { Flashcard } from "@/types";
+
+type DeckCard = Pick<Flashcard, "id" | "front" | "back">;
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+let cards: DeckCard[] = [];
+if (supabase) {
+  // RLS scopes this to the current user's rows automatically.
+  const { data } = await supabase
+    .from("flashcards")
+    .select("id, front, back")
+    .order("created_at", { ascending: false });
+  cards = data ?? [];
+}
+---
+
+<Layout title="My deck">
+  <main class="min-h-screen p-6 text-white">
+    <h1 class="mb-4 text-2xl font-bold">My deck</h1>
+    <DeckList client:load cards={cards} />
+  </main>
+</Layout>

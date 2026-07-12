@@ -23,6 +23,8 @@ export function GenerateForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const trimmedLength = text.trim().length;
   const inputInvalid = trimmedLength < MIN_INPUT || trimmedLength > MAX_INPUT;
@@ -58,6 +60,29 @@ export function GenerateForm() {
 
   function patch(index: number, next: Partial<Proposal>) {
     setProposals((prev) => prev.map((p, i) => (i === index ? { ...p, ...next } : p)));
+  }
+
+  async function handleSave() {
+    const accepted = proposals.filter((p) => p.decision === "accepted");
+    if (accepted.length === 0) return;
+    setSaveStatus("saving");
+    setSaveError(null);
+    try {
+      const res = await fetch("/api/flashcards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cards: accepted.map((p) => ({ front: p.front, back: p.back })) }),
+      });
+      if (!res.ok) {
+        setSaveStatus("error");
+        setSaveError(res.status === 401 ? "Please sign in to save." : "Save failed — try again.");
+        return;
+      }
+      setSaveStatus("saved");
+    } catch {
+      setSaveStatus("error");
+      setSaveError("Network error — try again.");
+    }
   }
 
   return (
@@ -155,18 +180,31 @@ export function GenerateForm() {
             </article>
           ))}
 
-          {/* Persisting the accepted set is S-02 (atomic save to the deck). */}
+          {/* Atomic save of the accepted set to the deck (S-02). */}
           <button
             type="button"
             className={cn(
-              "self-start rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm",
-              acceptedCount === 0 && "cursor-not-allowed opacity-50",
+              "self-start rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20",
+              (acceptedCount === 0 || saveStatus === "saving") && "cursor-not-allowed opacity-50",
             )}
-            disabled={acceptedCount === 0}
-            title="Saving to the deck is implemented in S-02"
+            disabled={acceptedCount === 0 || saveStatus === "saving"}
+            onClick={handleSave}
           >
-            Save {acceptedCount} to deck (S-02)
+            {saveStatus === "saving" ? "Saving…" : `Save ${acceptedCount} to deck`}
           </button>
+          {saveStatus === "saved" && (
+            <p role="status" className="text-sm text-green-300">
+              Saved.{" "}
+              <a className="underline" href="/deck">
+                View your deck
+              </a>
+            </p>
+          )}
+          {saveStatus === "error" && saveError && (
+            <p role="alert" className="text-sm text-red-300">
+              {saveError}
+            </p>
+          )}
         </section>
       )}
     </div>
