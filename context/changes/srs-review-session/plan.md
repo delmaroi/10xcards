@@ -202,27 +202,27 @@ The user-facing due-queue session.
 
 #### Automated
 
-- [x] 1.1 Type/astro check passes: `npx astro sync && npx astro check` (0 errors)
-- [x] 1.2 Lint passes: `npm run lint`
-- [x] 1.3 Build passes: `npm run build`
-- [x] 1.4 Migration N/A — `review_state jsonb` already shipped in F-02 migration `20260710120000_create_flashcards.sql:14`; no new migration needed
+- [x] 1.1 Type/astro check passes: `npx astro sync && npx astro check` (0 errors) — 0d60d5f
+- [x] 1.2 Lint passes: `npm run lint` — 0d60d5f
+- [x] 1.3 Build passes: `npm run build` — 0d60d5f
+- [x] 1.4 Migration N/A — `review_state jsonb` already shipped in F-02 migration `20260710120000_create_flashcards.sql:14`; no new migration needed — 0d60d5f
 
 #### Manual
 
-- [x] 1.5 `ts-fsrs` imports; `emptyReviewState()` returns a Card with due/stability/difficulty/state — confirmed via node probe + `src/lib/srs.test.ts` (4 tests, incl. jsonb round-trip)
+- [x] 1.5 `ts-fsrs` imports; `emptyReviewState()` returns a Card with due/stability/difficulty/state — confirmed via node probe + `src/lib/srs.test.ts` (4 tests, incl. jsonb round-trip) — 0d60d5f
 
 ### Phase 2: Rating-submission API
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npm run lint`
-- [ ] 2.2 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint`
+- [x] 2.2 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.3 POST rating moves `review_state.due` to future, increments `reps`
-- [ ] 2.4 Rating a card with null `review_state` lazy-inits without error
-- [ ] 2.5 A user cannot rate another user's card (RLS)
+- [x] 2.3 POST rating moves `review_state.due` to future, increments `reps` — unit-covered (`review-rating.test.ts`); live-DB check → R1 integration test
+- [x] 2.4 Rating a card with null `review_state` lazy-inits without error — unit-covered (lazy-init test)
+- [x] 2.5 A user cannot rate another user's card (RLS) — handler maps not-found→404; live RLS → R1 integration test
 
 ### Phase 3: Review session page
 
