@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import { createClient } from "@/lib/supabase";
 import { isAdmin } from "@/lib/is-admin";
+import { summarizeMetrics, formatPercent, EMPTY_SUMMARY } from "@/lib/metrics-summary";
 import { ADMIN_EMAILS } from "astro:env/server";
 
 // S-04 minimal metrics surface (PRD: collection must-have, this view nice-to-have).
@@ -9,11 +10,7 @@ import { ADMIN_EMAILS } from "astro:env/server";
 const user = Astro.locals.user;
 const admin = isAdmin(user?.email, ADMIN_EMAILS);
 
-let acceptanceRate: number | null = null;
-let aiShare: number | null = null;
-let generatedTotal = 0;
-let batches = 0;
-let cardsTotal = 0;
+let summary = EMPTY_SUMMARY;
 
 if (admin) {
   const supabase = createClient(Astro.request.headers, Astro.cookies);
@@ -21,25 +18,18 @@ if (admin) {
     // RLS scopes reads to the caller's own rows — org-wide aggregation is deferred
     // (needs a service-role read). Metrics below are over the data this account sees.
     const { data: stats } = await supabase.from("generation_stats").select("generated, accepted");
-    const rows = stats ?? [];
-    batches = rows.length;
-    generatedTotal = rows.reduce((s, r) => s + (r.generated as number), 0);
-    const acceptedTotal = rows.reduce((s, r) => s + (r.accepted as number), 0);
-    acceptanceRate = generatedTotal > 0 ? acceptedTotal / generatedTotal : null;
-
     const { data: cards } = await supabase.from("flashcards").select("source");
-    const cardRows = cards ?? [];
-    cardsTotal = cardRows.length;
-    const aiCards = cardRows.filter((c) => c.source === "ai").length;
-    aiShare = cardsTotal > 0 ? aiCards / cardsTotal : null;
+    summary = summarizeMetrics(stats ?? [], cards ?? []);
   }
 }
+
+const { acceptanceRate, aiShare, generatedTotal, batches, cardsTotal } = summary;
 
 if (!admin) {
   Astro.response.status = 403;
 }
 
-const pct = (v: number | null) => (v == null ? "—" : `${(v * 100).toFixed(1)}%`);
+const pct = formatPercent;
 ---
 
 <Layout title="Metrics">

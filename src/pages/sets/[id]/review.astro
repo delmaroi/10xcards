@@ -1,0 +1,46 @@
+---
+export const prerender = false;
+
+import Layout from "@/layouts/Layout.astro";
+import { getSetByIdForUser } from "@/lib/services/sets";
+import { getUserVoices } from "@/lib/services/user-settings";
+import ReviewSession from "@/components/review/ReviewSession";
+import type { SupportedLocale } from "@/lib/i18n/constants";
+import { DEFAULT_VOICE, type VoiceId } from "@/lib/tts/voices";
+
+const { id } = Astro.params;
+const { user, supabase, locale } = Astro.locals;
+
+let setName = "";
+let found = false;
+let voiceFront: VoiceId = DEFAULT_VOICE;
+let voiceBack: VoiceId = DEFAULT_VOICE;
+
+if (user && supabase && id) {
+  const { data, error } = await getSetByIdForUser(supabase, user.id, id);
+  if (data && !error) {
+    setName = data.name;
+    found = true;
+  }
+  const { data: voices } = await getUserVoices(supabase, user.id);
+  voiceFront = voices.front;
+  voiceBack = voices.back;
+}
+
+if (!found || !id) {
+  Astro.response.status = 302;
+  Astro.response.headers.set("Location", id ? `/sets/${id}` : "/dashboard");
+  return;
+}
+---
+
+<Layout title={`Review — ${setName}`}>
+  <ReviewSession
+    client:only="react"
+    setId={id}
+    setName={setName}
+    locale={locale as SupportedLocale}
+    voiceFront={voiceFront}
+    voiceBack={voiceBack}
+  />
+</Layout>

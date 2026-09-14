@@ -1,48 +1,97 @@
 import type { APIRoute } from "astro";
-import { createClient } from "@/lib/supabase";
-import { handleUpdateCard, handleDeleteCard, type MutationResponse } from "@/lib/deck-mutations";
-
-function toResponse(result: MutationResponse): Response {
-  return new Response(JSON.stringify(result.body), {
-    status: result.status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
+import {
+  updateFlashcard,
+  deleteFlashcard,
+  flashcardContentSchema,
+  errorMessage,
+  isNotFound,
+} from "@/lib/services/flashcards";
 
 export const PATCH: APIRoute = async (context) => {
-  let body: unknown = null;
+  const user = context.locals.user;
+  const supabase = context.locals.supabase;
+  if (!user?.id || !supabase) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const { id } = context.params;
+  if (!id) {
+    return new Response(JSON.stringify({ error: "Flashcard ID is required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  let body: unknown;
   try {
     body = await context.request.json();
   } catch {
-    body = null;
+    return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
-  const supabase = createClient(context.request.headers, context.cookies);
-  const result = await handleUpdateCard({
-    userId: context.locals.user?.id ?? null,
-    id: context.params.id ?? "",
-    body,
-    updateCard: async (id, patch) => {
-      if (!supabase) return { ok: false, found: false };
-      const { data, error } = await supabase.from("flashcards").update(patch).eq("id", id).select("id");
-      if (error) return { ok: false, found: false };
-      return { ok: true, found: data.length > 0 };
-    },
+  const parsed = flashcardContentSchema.safeParse(body);
+  if (!parsed.success) {
+    return new Response(
+      JSON.stringify({
+        error: "Validation failed",
+        details: parsed.error.issues.map((i) => i.message),
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
+  const { data, error } = await updateFlashcard(supabase, user.id, id, parsed.data);
+
+  if (error) {
+    const status = isNotFound(error) ? 404 : 500;
+    return new Response(JSON.stringify({ error: errorMessage(error) }), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
   });
-  return toResponse(result);
 };
 
 export const DELETE: APIRoute = async (context) => {
-  const supabase = createClient(context.request.headers, context.cookies);
-  const result = await handleDeleteCard({
-    userId: context.locals.user?.id ?? null,
-    id: context.params.id ?? "",
-    deleteCard: async (id) => {
-      if (!supabase) return { ok: false, found: false };
-      const { data, error } = await supabase.from("flashcards").delete().eq("id", id).select("id");
-      if (error) return { ok: false, found: false };
-      return { ok: true, found: data.length > 0 };
-    },
+  const user = context.locals.user;
+  const supabase = context.locals.supabase;
+  if (!user?.id || !supabase) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const { id } = context.params;
+  if (!id) {
+    return new Response(JSON.stringify({ error: "Flashcard ID is required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const { error } = await deleteFlashcard(supabase, user.id, id);
+
+  if (error) {
+    const status = isNotFound(error) ? 404 : 500;
+    return new Response(JSON.stringify({ error: errorMessage(error) }), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  return new Response(JSON.stringify({ success: true }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
   });
-  return toResponse(result);
 };

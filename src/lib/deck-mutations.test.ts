@@ -14,6 +14,14 @@ describe("handleUpdateCard (S-03)", () => {
     expect(updateCard).not.toHaveBeenCalled();
   });
 
+  it("400 when the route supplied no id", async () => {
+    // The endpoint passes `params.id ?? ""` — a missing segment must not reach the DB.
+    const updateCard = vi.fn<Update>();
+    const r = await handleUpdateCard({ userId: "u1", id: "", body: VALID, updateCard });
+    expect(r.status).toBe(400);
+    expect(updateCard).not.toHaveBeenCalled();
+  });
+
   it("400 on a malformed body", async () => {
     const updateCard = vi.fn<Update>().mockResolvedValue({ ok: true, found: true });
     const r = await handleUpdateCard({ userId: "u1", id: "c1", body: { front: "" }, updateCard });
@@ -45,6 +53,13 @@ describe("handleDeleteCard (S-03)", () => {
     const deleteCard = vi.fn<Delete>();
     const r = await handleDeleteCard({ userId: null, id: "c1", deleteCard });
     expect(r.status).toBe(401);
+    expect(deleteCard).not.toHaveBeenCalled();
+  });
+
+  it("400 when the route supplied no id", async () => {
+    const deleteCard = vi.fn<Delete>();
+    const r = await handleDeleteCard({ userId: "u1", id: "", deleteCard });
+    expect(r.status).toBe(400);
     expect(deleteCard).not.toHaveBeenCalled();
   });
 

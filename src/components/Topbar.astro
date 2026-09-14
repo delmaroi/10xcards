@@ -8,7 +8,10 @@ const { user } = Astro.locals;
   {
     user ? (
       <>
-        <span class="text-blue-100/70">{user.email}</span>
+        <span class="text-blue-100/70">
+          <span class="sm:hidden">{user.email?.split("@")[0]}</span>
+          <span class="hidden sm:inline">{user.email}</span>
+        </span>
         <div class="flex items-center gap-3">
           <a href="/dashboard" class="text-purple-300 transition-colors hover:text-purple-100 hover:underline">
             Dashboard

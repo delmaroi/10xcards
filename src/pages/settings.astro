@@ -1,0 +1,32 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { getUserPrompt, getUserVoices } from "@/lib/services/user-settings";
+import { SettingsPage } from "@/components/settings/SettingsPage";
+import { getTranslations } from "@/lib/i18n/ui";
+import type { SupportedLocale } from "@/lib/i18n/constants";
+
+const { user, supabase, locale } = Astro.locals;
+const t = getTranslations(locale as SupportedLocale);
+
+if (!user || !supabase) {
+  return Astro.redirect("/auth/signin");
+}
+
+const { data: promptData } = await getUserPrompt(supabase, user.id);
+const { data: voices } = await getUserVoices(supabase, user.id);
+
+const initialPrompt = promptData?.prompt ?? null;
+const initialFlashcardCount = promptData?.flashcard_count ?? null;
+---
+
+<Layout title={t("settings.title")} locale={locale as SupportedLocale}>
+  <SettingsPage
+    email={user.email ?? ""}
+    initialPrompt={initialPrompt}
+    initialFlashcardCount={initialFlashcardCount}
+    locale={locale as SupportedLocale}
+    initialVoiceFront={voices.front}
+    initialVoiceBack={voices.back}
+    client:load
+  />
+</Layout>

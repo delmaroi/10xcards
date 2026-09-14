@@ -1,0 +1,82 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { getSetWithFlashcards } from "@/lib/services/sets";
+import { getSetActivity } from "@/lib/services/stats";
+import SetDetailPage from "@/components/sets/SetDetailPage";
+import { getTranslations } from "@/lib/i18n/ui";
+import type { SupportedLocale } from "@/lib/i18n/constants";
+
+const { id } = Astro.params;
+const { user, supabase, locale } = Astro.locals;
+const t = getTranslations(locale as SupportedLocale);
+
+const { data, error: fetchError } =
+  user && supabase && id ? await getSetWithFlashcards(supabase, user.id, id) : { data: null, error: null };
+
+const { data: activityData } =
+  data && user && supabase && id ? await getSetActivity(supabase, user.id, id) : { data: null };
+
+const isServerError = !!fetchError && !data;
+
+if (!isServerError && !data) {
+  Astro.response.status = 404;
+}
+---
+
+{
+  isServerError && (
+    <Layout title="Error">
+      <div class="bg-cosmic flex min-h-screen items-center justify-center p-4 text-white">
+        <p class="text-red-400">{t("set.failedToLoad")}</p>
+      </div>
+    </Layout>
+  )
+}
+
+{
+  !isServerError && !data && (
+    <Layout title="Set not found">
+      <div class="bg-cosmic min-h-screen p-4 text-white">
+        <div class="mx-auto max-w-3xl">
+          <a
+            href="/dashboard"
+            class="mb-6 inline-flex items-center gap-1 text-sm text-blue-100/50 transition-colors hover:text-blue-100/80"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="size-4"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+            {t("set.backToDashboard")}
+          </a>
+          <div class="flex flex-col items-center justify-center py-20 text-center">
+            <p class="text-lg font-medium text-blue-100/60">{t("set.notFound")}</p>
+            <p class="mt-1 text-sm text-blue-100/40">{t("set.notFoundDesc")}</p>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  )
+}
+
+{
+  data && (
+    <Layout title={data.set.name}>
+      <SetDetailPage
+        initialData={JSON.stringify(data)}
+        activity={JSON.stringify(activityData ?? [])}
+        locale={locale as SupportedLocale}
+        client:only="react"
+      />
+    </Layout>
+  )
+}

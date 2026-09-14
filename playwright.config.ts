@@ -21,10 +21,10 @@ export default defineConfig({
     timeout: 120_000,
   },
   projects: [
-    // Logged-out tests (e.g. the auth-gate seed) — need no session.
+    // Logged-out tests — need no session, so they run anywhere (CI included).
     {
       name: "logged-out",
-      testMatch: /seed\.spec\.ts/,
+      testMatch: /(seed|auth-gate|auth-forms)\.spec\.ts/,
       use: { ...devices["Desktop Chrome"] },
     },
 
@@ -34,7 +34,7 @@ export default defineConfig({
     { name: "setup", testMatch: /auth\.setup\.ts/ },
     {
       name: "chromium",
-      testMatch: /review\.spec\.ts/,
+      testMatch: /(review|deck)\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], storageState: "playwright/.auth/user.json" },
       dependencies: ["setup"],
     },

@@ -62,4 +62,23 @@ describe("generateFlashcards (S-01 OpenRouter client)", () => {
     const r = await generateFlashcards(TEXT, KEY, fetchImpl);
     expect(r).toEqual({ ok: false, error: "provider_error" });
   });
+
+  it("returns provider_error when the response body is not JSON at all", async () => {
+    // A gateway HTML error page still arrives with status 200 sometimes; res.json()
+    // throws and must be caught rather than crashing the endpoint.
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(new Response("<html>502</html>", { status: 200 }));
+    await expect(generateFlashcards(TEXT, KEY, fetchImpl)).resolves.toEqual({ ok: false, error: "provider_error" });
+  });
+
+  it("fails fast when no API key is configured, without calling the provider", async () => {
+    const fetchImpl = vi.fn<typeof fetch>();
+    await expect(generateFlashcards(TEXT, "", fetchImpl)).resolves.toEqual({ ok: false, error: "provider_error" });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("returns bad_output when the response JSON carries no choices", async () => {
+    // Well-formed JSON, wrong shape — content falls back to "" and fails validation.
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(new Response("{}", { status: 200 }));
+    await expect(generateFlashcards(TEXT, KEY, fetchImpl)).resolves.toEqual({ ok: false, error: "bad_output" });
+  });
 });

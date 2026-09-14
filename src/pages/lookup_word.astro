@@ -1,0 +1,35 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { LookupWordPage } from "@/components/lookup/LookupWordPage";
+import { getSetByIdForUser } from "@/lib/services/sets";
+import { getTranslations } from "@/lib/i18n/ui";
+import type { SupportedLocale } from "@/lib/i18n/constants";
+
+export const prerender = false;
+
+const { user, supabase, locale } = Astro.locals;
+const setId = Astro.url.searchParams.get("setId");
+
+let setName: string | null = null;
+let isOwner = false;
+
+if (user && supabase && setId) {
+  const { data, error } = await getSetByIdForUser(supabase, user.id, setId);
+  if (data && !error) {
+    setName = data.name;
+    isOwner = true;
+  }
+}
+
+if (!isOwner || !setId || !setName) {
+  Astro.response.status = 302;
+  Astro.response.headers.set("Location", "/dashboard");
+  return;
+}
+
+const t = getTranslations(locale as SupportedLocale);
+---
+
+<Layout title={t("lookup.title")} locale={locale as SupportedLocale}>
+  <LookupWordPage setId={setId} setName={setName} locale={locale as SupportedLocale} client:load />
+</Layout>

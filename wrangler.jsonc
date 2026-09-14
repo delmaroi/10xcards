@@ -12,4 +12,11 @@
   "observability": {
     "enabled": true,
   },
+  "kv_namespaces": [
+    {
+      "binding": "AI_RATE_LIMIT",
+      "id": "65feea85d7c4459ea089f31fb368f050",
+      "preview_id": "1f797738393b436f99300215266fe319"
+    }
+  ],
 }

@@ -45,19 +45,42 @@ Scored on a coarse High / Medium / Low scale. Protect High × High first. Source
 
 Status vocabulary: `not started` → `change opened` → `researched` → `planned` → `implementing` → `complete`.
 
-| #   | Phase                                     | Goal (protection proven)                                                                                     | Risks  | Test types                                      | Status      | Change folder                        |
-| --- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------ | ----------------------------------------------- | ----------- | ------------------------------------ |
-| 1   | Test runner bootstrap + auth-gating tests | Stand up vitest; lock the default-deny gate against regression (F-01 is the only built slice — testable now) | R3     | unit (allowlist policy), infra (runner)         | complete    | context/changes/testing-auth-gating/ |
-| 2   | Data isolation + atomic save              | Cross-user access denied (RLS/ownership); accepted cards persist all-or-nothing                              | R1, R4 | integration                                     | not started | —                                    |
-| 3   | Generation/acceptance rules + privacy     | Draft→human-decision→deck is exact; source text not retained                                                 | R2, R5 | unit (state machine) + integration (generation) | not started | —                                    |
-| 4   | Abuse guard + quality gates in CI         | Generation is bounded (rate/length); lint+typecheck+test gate every PR                                       | R6     | integration + CI wiring                         | not started | —                                    |
+| #   | Phase                                     | Goal (protection proven)                                                                                     | Risks  | Test types                                      | Status       | Change folder                        |
+| --- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------ | ----------------------------------------------- | ------------ | ------------------------------------ |
+| 1   | Test runner bootstrap + auth-gating tests | Stand up vitest; lock the default-deny gate against regression (F-01 is the only built slice — testable now) | R3     | unit (allowlist policy), infra (runner)         | complete     | context/changes/testing-auth-gating/ |
+| 2   | Data isolation + atomic save              | Cross-user access denied (RLS/ownership); accepted cards persist all-or-nothing                              | R1, R4 | integration                                     | implementing | —                                    |
+| 3   | Generation/acceptance rules + privacy     | Draft→human-decision→deck is exact; source text not retained                                                 | R2, R5 | unit (state machine) + integration (generation) | implementing | —                                    |
+| 4   | Abuse guard + quality gates in CI         | Generation is bounded (rate/length); lint+typecheck+test gate every PR                                       | R6     | integration + CI wiring                         | implementing | —                                    |
 
 **Prerequisites / order:** Phase 1 is actionable now. Phases 2–3 require the built data + generation slices (F-02 → S-01 → S-02) from the roadmap. Phase 4's CI gate can partially land anytime (lint/typecheck/build already exist in `.github/workflows/ci.yml`); its abuse tests wait for S-01.
+
+### 3.1 Coverage sweep (2026-09-10)
+
+A whole-app sweep took the suite from 62 tests over 9 pure-lib modules to **317 unit/component
+tests + 26 logged-out E2E tests**, at 99.2% statements / 98.7% branches / 100% functions.
+`src/middleware.ts`, all 11 API endpoints and all 10 React components went from zero coverage
+to covered. What this did and did NOT settle, per risk:
+
+| Risk | Now covered                                                                                                                                      | Still open                                                                                                                      |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| R1   | The **contract**: a statement affecting 0 rows maps to 404, and no write follows a failed load (`flashcards-id`, `submit-rating` endpoint tests) | The **mechanism**: no test runs as two real users against a real database, so the RLS policies themselves are still unexercised |
+| R2   | Full triage path — only accepted proposals are sent, edits are preserved, rejected/pending never leave the client (`GenerateForm.test.tsx`)      | —                                                                                                                               |
+| R3   | Policy **and** wiring, including the 401-vs-redirect split, at unit and browser level                                                            | —                                                                                                                               |
+| R4   | One insert per save (all-or-nothing), owner stamped from the session, 500 on failure with nothing reported as saved                              | A real mid-transaction failure against Postgres                                                                                 |
+| R5   | The response never echoes the pasted source text                                                                                                 | That nothing persists or logs it — needs a real DB/log assertion                                                                |
+| R6   | An anonymous request never reaches the paid provider                                                                                             | Rate limiting itself: **the feature does not exist yet**, so this is a product gap, not a test gap                              |
+
+**Gate defect found and fixed during the sweep:** the middleware answered protected `/api/*`
+routes with a 302 to `/auth/signin`. `fetch()` follows that transparently, so callers received
+200 + HTML, `res.ok` was true, and every island treated a rejected write as a success — the
+generate screen reported "Saved." for cards that were never stored. Protected API routes now
+return `401 {"error":"unauthorized"}`; `isApiRoute()` in `src/lib/route-access.ts` draws the
+line, and the behaviour is pinned in `src/middleware.test.ts` and `e2e/auth-gate.spec.ts`.
 
 ## 4. Stack
 
 - **Runtime/framework:** Astro 6 SSR + React 19 islands, Cloudflare Workers (`.nvmrc` 22.14.0). Per `tech-stack.md`.
-- **Test base:** **none** — no vitest/jest/playwright config, 0 test files. Phase 1 bootstraps the runner.
+- **Test base:** Vitest (unit + jsdom component) and Playwright (E2E), both wired into `.github/workflows/ci.yml`. Coverage thresholds are enforced in `vitest.config.ts`.
 - **Recommended runner (hypothesis for /10x-research to confirm):** Vitest (native to the Vite/Astro toolchain already in the project); Playwright only if a later risk genuinely needs a real browser (none currently do — gating and data rules are cheaper at the integration layer).
 - **Stack grounding tools (current session):**
   - Docs: WebSearch/WebFetch ✓ — used to ground the FSRS/ts-fsrs spike; checked 2026-07-08.
@@ -81,21 +104,27 @@ Filled in as phases ship (last sub-phase of each rollout phase updates this).
 - **Runner:** Vitest (`npm test` → `vitest run`). Config: `vitest.config.ts` (plain `defineConfig`, `@/*` alias).
 - **Location:** co-located `*.test.ts` next to the module (e.g. `src/lib/route-access.test.ts`).
 - **Reference test:** `src/lib/route-access.test.ts` (R3 allowlist guard) — behavioral `it.each` over concrete inputs; oracle from the design contract, not the code.
-- **⚠️ Constraint (sharp edge):** `astro/config`'s `getViteConfig` is INCOMPATIBLE with Vitest here — the Cloudflare adapter's Vite plugin rejects the worker env. So tests must target **framework-free modules** (no `astro:*` imports). Extract pure logic out of `astro:*`-importing files (as `route-access.ts` was pulled out of `middleware.ts`) to make it testable cheaply. Testing `astro:*`-importing code needs a different strategy (mock `astro:*`, or a running-server integration) — not yet solved.
+- **⚠️ Constraint (sharp edge), now solved:** `astro/config`'s `getViteConfig` is INCOMPATIBLE with Vitest here — the Cloudflare adapter's Vite plugin rejects the worker env. Rather than avoiding every `astro:*` importer, `vitest.config.ts` **aliases the two virtual modules the app actually uses** (`astro:env/server`, `astro:middleware`) to stubs in `src/test/stubs/`. That put `src/middleware.ts` and every `src/pages/api` endpoint in reach of plain unit tests. Extracting pure logic is still preferred where it is natural (`route-access.ts`, `due-queue.ts`, `metrics-summary.ts` — the latter two pulled out of `.astro` frontmatter, which remains untestable directly).
+- **⚠️ Alias gotcha:** the alias must be `@/` (prefix), not `@`. A bare `@` also rewrites scoped packages such as `@testing-library/react`.
 - **Command:** `npm test`. Deliberate-break check: loosen the rule under test, confirm a test goes red, revert.
 
 ### 6.2 Adding a unit test (business-rule / state machine)
 
-TBD — see §3 Phase 3 (draft-state machine pattern).
+- **Reference:** `src/lib/save-flashcards.test.ts` (pure handler) and `src/components/generate/GenerateForm.test.tsx` (the triage state machine as the user drives it).
+- **Endpoint tests:** live in `src/tests/api/` — deliberately NOT in `src/pages/`, where Astro's file-based routing would publish them as real routes. They import the route module and drive it with `makeApiContext()` from `src/test/factories.ts`.
+- **Supabase:** `makeSupabaseStub()` (`src/test/supabase-stub.ts`) is chainable and thenable, so one double covers `.insert()`, `.update().eq().select()` and friends, and records the calls so a test can assert the query it MEANT to send. Use `sequences` when one endpoint issues several statements against the same table.
+- **Component tests:** co-located `*.test.tsx` with a `// @vitest-environment jsdom` docblock on line 1 (Vitest 4 dropped `environmentMatchGlobs`). React Testing Library + `user-event`; query by role/label, never by class.
 
 ### 6.3 Cross-user isolation test
 
-TBD — see §3 Phase 2 (RLS/ownership pattern).
+Partially covered, and the gap is deliberate — see §3.1. The **contract** ("0 affected rows → 404, and never a write") is pinned in `src/tests/api/flashcards-id.test.ts` and `src/tests/api/submit-rating.test.ts`. The **mechanism** (the RLS policies in `supabase/migrations/`) still needs two real accounts against a real database; that is the remaining Phase 2 work and cannot be faked with a stub, since over-mocking the DB is exactly the anti-pattern §2 warns about.
 
 ### 6.4 Adding an E2E (browser) test
 
 - **Runner:** Playwright (`npm run test:e2e`). Config: `playwright.config.ts` (`webServer` auto-starts `npm run dev`; `logged-out` project now, authed `storageState` project documented for when login-gated features land). Prereq: `npm i -D @playwright/test && npx playwright install chromium`.
-- **Location:** `e2e/*.spec.ts`. Rules + 5 anti-patterns: `e2e/e2e-quality-rules.md`. Reference/seed: `e2e/seed.spec.ts` (auth-gate redirect, R3).
+- **Location:** `e2e/*.spec.ts`. Rules + 5 anti-patterns: `e2e/e2e-quality-rules.md`. Reference/seed: `e2e/seed.spec.ts` (auth-gate redirect, R3). Projects are selected by filename: `logged-out` runs `seed|auth-gate|auth-forms`, the authenticated `chromium` project runs `review|deck`.
+- **⚠️ Hydration:** a `client:load` island is clickable before it is interactive, and an early click submits the SSR form natively, skipping the React validation under test. Await `waitForIslands(page)` (`e2e/helpers.ts`) after `goto()` on any page with an island.
+- **⚠️ CSRF:** Astro rejects a same-site POST with no `Origin` header (403). `request.post()` sends none — pass `headers: { Origin: baseURL }`.
 - **Auth:** `e2e/auth.setup.ts` → `storageState` (log in once, reuse); logged-out tests skip it.
 - **Scope:** only browser-level risks whose feature is built (crosses auth/routing/API/DB, or exists only in rendered UI). Mock external APIs (LLM) at the network layer; keep internal boundaries real. VERIFY by deliberately breaking the protected behavior → test must go red (revert, never commit).
 - **Note:** `e2e/` + `playwright.config.ts` are excluded from `tsconfig`/ESLint until `@playwright/test` is installed.

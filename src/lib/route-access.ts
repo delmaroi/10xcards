@@ -13,3 +13,12 @@ export function isPublicRoute(pathname: string): boolean {
   if (lastSegment.includes(".")) return true;
   return false;
 }
+
+/**
+ * Is `pathname` an API endpoint? API callers are `fetch()`, not browsers: an auth
+ * failure must answer 401 JSON, because a 302 to the sign-in page is followed
+ * transparently and arrives at the caller as a 200 HTML body.
+ */
+export function isApiRoute(pathname: string): boolean {
+  return pathname.startsWith("/api/");
+}

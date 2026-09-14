@@ -1,33 +1,40 @@
 ---
 import "../styles/global.css";
 import Banner from "@/components/Banner.astro";
+import NavBar from "@/components/NavBar.astro";
 import { missingConfigs } from "@/lib/config-status";
+import SonnerToaster from "@/components/ui/SonnerToaster.tsx";
+import { getTranslations } from "@/lib/i18n/ui";
+import type { SupportedLocale } from "@/lib/i18n/constants";
+import { DEFAULT_LOCALE } from "@/lib/i18n/constants";
 
 interface Props {
   title?: string;
+  locale?: SupportedLocale;
 }
 
-const { title = "10x Astro Starter" } = Astro.props;
+const { title = "10x Cards - MJ", locale = DEFAULT_LOCALE } = Astro.props;
+const t = getTranslations(locale);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <title>{title}</title>
   </head>
-  <body>
+  <body class="bg-cosmic">
     {
       missingConfigs.map((cfg) => (
         <Banner variant="error">
-          <strong>Uwaga:</strong> {cfg.message}
+          <strong>{t("banner.attention")}</strong> {t(cfg.messageKey)}
           {cfg.docsUrl && (
             <>
               {" "}
               <a href={cfg.docsUrl} target="_blank" rel="noopener noreferrer">
-                {cfg.docsLabel ?? "Dokumentacja"}
+                {cfg.docsLabelKey ? t(cfg.docsLabelKey) : t("banner.docs")}
               </a>
               .
             </>
@@ -35,7 +42,15 @@ const { title = "10x Astro Starter" } = Astro.props;
         </Banner>
       ))
     }
+    <NavBar />
     <slot />
+    <SonnerToaster client:load />
+    <script>
+      // Reload if page is restored from bfcache so locale cookie changes are applied
+      window.addEventListener("pageshow", function (e) {
+        if (e.persisted) window.location.reload();
+      });
+    </script>
   </body>
 </html>
 

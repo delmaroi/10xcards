@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isPublicRoute } from "@/lib/route-access";
+import { isPublicRoute, isApiRoute } from "@/lib/route-access";
 
 // R3 (auth-gate regression) guard. Oracle = the design contract (default-deny
 // allowlist), NOT what the code currently returns. These assertions fail if the
@@ -44,6 +44,24 @@ describe("route-access policy (R3 auth gate)", () => {
     it("does not treat a product route that merely contains 'auth' as public", () => {
       // Guards against a widened check (e.g. `.includes('/auth/')` instead of a prefix).
       expect(isPublicRoute("/dashboard/auth/settings")).toBe(false);
+    });
+  });
+
+  describe("API-route classification (drives 401-vs-redirect)", () => {
+    it.each(["/api/generate", "/api/flashcards", "/api/flashcards/abc-123", "/api/auth/signin"])(
+      "treats %s as an API route",
+      (path) => {
+        expect(isApiRoute(path)).toBe(true);
+      },
+    );
+
+    it.each(["/dashboard", "/deck", "/", "/apiary", "/auth/signin"])("treats %s as a page route", (path) => {
+      expect(isApiRoute(path)).toBe(false);
+    });
+
+    it("does not match a page route that merely contains /api/", () => {
+      // Prefix, not substring: a redirect must stay a redirect for real pages.
+      expect(isApiRoute("/docs/api/reference")).toBe(false);
     });
   });
 });

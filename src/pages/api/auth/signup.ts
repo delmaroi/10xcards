@@ -8,12 +8,13 @@ export const POST: APIRoute = async (context) => {
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
-    return context.redirect(`/auth/signup?error=${encodeURIComponent("Supabase is not configured")}`);
+    return context.redirect(`/auth/signup?error=SUPABASE_NOT_CONFIGURED`);
   }
   const { error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
-    return context.redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`);
+    const code = error.message.toLowerCase().includes("already") ? "EMAIL_ALREADY_REGISTERED" : "SERVER_ERROR";
+    return context.redirect(`/auth/signup?error=${code}`);
   }
 
   return context.redirect("/auth/confirm-email");

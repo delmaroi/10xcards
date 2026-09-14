@@ -1,11 +1,32 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { GenerateForm } from "@/components/generate/GenerateForm";
+import GenerateFlashcardsPage from "@/components/ai/GenerateFlashcardsPage";
+import { getSetByIdForUser } from "@/lib/services/sets";
+import type { SupportedLocale } from "@/lib/i18n/constants";
+
+export const prerender = false;
+
+const { user, supabase, locale } = Astro.locals;
+const setId = Astro.url.searchParams.get("setId");
+
+let setName: string | null = null;
+let isOwner = false;
+
+if (user && supabase && setId) {
+  const { data, error } = await getSetByIdForUser(supabase, user.id, setId);
+  if (data && !error) {
+    setName = data.name;
+    isOwner = true;
+  }
+}
+
+if (!isOwner || !setId) {
+  Astro.response.status = 302;
+  Astro.response.headers.set("Location", "/dashboard");
+  return;
+}
 ---
 
-<Layout title="Generate flashcards">
-  <main class="bg-cosmic min-h-screen p-6 text-white">
-    <h1 class="mb-4 text-2xl font-bold">Generate flashcards</h1>
-    <GenerateForm client:load />
-  </main>
+<Layout title={`Generate flashcards · ${setName}`} locale={locale as SupportedLocale}>
+  <GenerateFlashcardsPage setId={setId} setName={setName!} locale={locale as SupportedLocale} client:load />
 </Layout>

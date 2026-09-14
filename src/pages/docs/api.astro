@@ -1,0 +1,6 @@
+---
+import { ScalarComponent } from "@scalar/astro";
+import { openApiSpec } from "@/lib/openapi/openapi-spec";
+---
+
+<ScalarComponent configuration={{ spec: { content: openApiSpec } }} />

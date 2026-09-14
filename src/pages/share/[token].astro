@@ -1,0 +1,96 @@
+---
+export const prerender = false;
+
+import Layout from "@/layouts/Layout.astro";
+import { SharePageContent } from "@/components/share/SharePageContent";
+import type { SharedSetInfo } from "@/types";
+
+const { token } = Astro.params;
+const { user, supabase } = Astro.locals;
+
+if (!token || !supabase) {
+  Astro.response.status = 404;
+}
+
+interface SetInfoRow {
+  set_id: string;
+  owner_id: string;
+  set_name: string;
+  flashcard_count: number;
+}
+
+const rpcResult = supabase
+  ? await supabase.rpc("get_shared_set_info", { p_token: token })
+  : { data: null, error: null };
+
+const setInfoError = rpcResult.error;
+const rows = rpcResult.data as SetInfoRow[] | null;
+const setInfoRow: SetInfoRow | null = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+
+if (!setInfoRow && !setInfoError) {
+  Astro.response.status = 404;
+}
+
+let claimStatus: "unclaimed" | "already_claimed" | "already_owner" | "unauthenticated" = "unauthenticated";
+let claimedSetId: string | undefined;
+
+if (setInfoRow && user && supabase) {
+  if (setInfoRow.owner_id === user.id) {
+    claimStatus = "already_owner";
+  } else {
+    const { data: shareRow } = await supabase
+      .from("set_shares")
+      .select("cloned_set_id")
+      .eq("original_set_id", setInfoRow.set_id)
+      .eq("recipient_user_id", user.id)
+      .maybeSingle();
+
+    if (shareRow) {
+      claimStatus = "already_claimed";
+      claimedSetId = shareRow.cloned_set_id as string;
+    } else {
+      claimStatus = "unclaimed";
+    }
+  }
+}
+
+const setInfo: SharedSetInfo | null = setInfoRow
+  ? {
+      set_id: setInfoRow.set_id,
+      owner_id: setInfoRow.owner_id,
+      set_name: setInfoRow.set_name,
+      flashcard_count: setInfoRow.flashcard_count,
+    }
+  : null;
+
+const safeToken = token ?? "";
+---
+
+{
+  (!setInfoRow || setInfoError) && (
+    <Layout title="Set not found">
+      <div class="bg-cosmic flex min-h-screen items-center justify-center p-4 text-white">
+        <div class="text-center">
+          <p class="text-lg font-medium text-blue-100/60">Link is invalid or the set was deleted.</p>
+          <a href="/dashboard" class="mt-4 inline-block text-sm text-blue-100/40 hover:text-blue-100/70">
+            Back to dashboard
+          </a>
+        </div>
+      </div>
+    </Layout>
+  )
+}
+
+{
+  setInfo && (
+    <Layout title={setInfo.set_name}>
+      <SharePageContent
+        setInfo={setInfo}
+        claimStatus={claimStatus}
+        claimedSetId={claimedSetId}
+        token={safeToken}
+        client:load
+      />
+    </Layout>
+  )
+}

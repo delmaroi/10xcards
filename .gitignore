@@ -27,9 +27,14 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+# test coverage
+coverage/
+
 # playwright / e2e
 playwright/.auth/
 test-results/
 playwright-report/
 blob-report/
 .last-run.json
+
+.claude/

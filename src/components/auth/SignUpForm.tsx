@@ -1,17 +1,32 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Mail, Lock, UserPlus } from "lucide-react";
+import { getErrorI18nKey } from "@/lib/i18n/api-errors";
 import { FormField } from "@/components/auth/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
+import { I18nProvider } from "@/components/I18nProvider";
+import type { SupportedLocale } from "@/lib/i18n/constants";
 
 const MIN_PASSWORD_LENGTH = 6;
 
 interface Props {
   serverError?: string | null;
+  locale: SupportedLocale;
 }
 
-export default function SignUpForm({ serverError }: Props) {
+export default function SignUpForm({ locale, ...props }: Props) {
+  return (
+    <I18nProvider locale={locale}>
+      <SignUpFormInner {...props} />
+    </I18nProvider>
+  );
+}
+
+function SignUpFormInner({ serverError }: Omit<Props, "locale">) {
+  const { t } = useTranslation("auth");
+  const translatedError = serverError ? t(getErrorI18nKey(serverError)) : null;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -23,21 +38,21 @@ export default function SignUpForm({ serverError }: Props) {
     const next: typeof errors = {};
 
     if (!email.trim()) {
-      next.email = "Email is required";
+      next.email = t("form.emailRequired");
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      next.email = "Enter a valid email address";
+      next.email = t("form.emailInvalid");
     }
 
     if (!password) {
-      next.password = "Password is required";
+      next.password = t("form.passwordRequired");
     } else if (password.length < MIN_PASSWORD_LENGTH) {
-      next.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
+      next.password = t("form.passwordMinLength", { min: MIN_PASSWORD_LENGTH });
     }
 
     if (!confirmPassword) {
-      next.confirmPassword = "Please confirm your password";
+      next.confirmPassword = t("form.passwordConfirmRequired");
     } else if (password !== confirmPassword) {
-      next.confirmPassword = "Passwords do not match";
+      next.confirmPassword = t("form.passwordsDoNotMatch");
     }
 
     setErrors(next);
@@ -57,8 +72,7 @@ export default function SignUpForm({ serverError }: Props) {
   const passwordHint =
     !errors.password && password.length > 0 && password.length < MIN_PASSWORD_LENGTH ? (
       <p className="mt-1 text-xs text-blue-100/50">
-        {MIN_PASSWORD_LENGTH - password.length} more character
-        {MIN_PASSWORD_LENGTH - password.length !== 1 ? "s" : ""} needed
+        {t("form.charactersNeeded", { count: MIN_PASSWORD_LENGTH - password.length })}
       </p>
     ) : undefined;
 
@@ -67,27 +81,27 @@ export default function SignUpForm({ serverError }: Props) {
       <FormField
         id="email"
         type="email"
-        label="Email"
+        label={t("form.email")}
         value={email}
         onChange={(v) => {
           setEmail(v);
           clearError("email");
         }}
-        placeholder="you@example.com"
+        placeholder={t("form.emailPlaceholder")}
         error={errors.email}
         icon={<Mail className="size-4" />}
       />
 
       <FormField
         id="password"
-        label="Password"
+        label={t("form.password")}
         type={showPassword ? "text" : "password"}
         value={password}
         onChange={(v) => {
           setPassword(v);
           clearError("password");
         }}
-        placeholder="Min. 6 characters"
+        placeholder={t("form.passwordMinPlaceholder")}
         error={errors.password}
         hint={passwordHint}
         icon={<Lock className="size-4" />}
@@ -104,14 +118,14 @@ export default function SignUpForm({ serverError }: Props) {
       <FormField
         id="confirmPassword"
         name="confirmPassword"
-        label="Confirm password"
+        label={t("form.confirmPassword")}
         type={showConfirmPassword ? "text" : "password"}
         value={confirmPassword}
         onChange={(v) => {
           setConfirmPassword(v);
           clearError("confirmPassword");
         }}
-        placeholder="Re-enter your password"
+        placeholder={t("form.confirmPasswordPlaceholder")}
         error={errors.confirmPassword}
         icon={<Lock className="size-4" />}
         endContent={
@@ -124,10 +138,10 @@ export default function SignUpForm({ serverError }: Props) {
         }
       />
 
-      <ServerError message={serverError} />
+      <ServerError message={translatedError} />
 
-      <SubmitButton pendingText="Creating account..." icon={<UserPlus className="size-4" />}>
-        Create account
+      <SubmitButton pendingText={t("signup.buttonPending")} icon={<UserPlus className="size-4" />}>
+        {t("signup.button")}
       </SubmitButton>
     </form>
   );

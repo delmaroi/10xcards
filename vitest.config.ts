@@ -1,17 +1,87 @@
-/// <reference types="vitest" />
 import { defineConfig } from "vitest/config";
-import { fileURLToPath } from "node:url";
+import react from "@vitejs/plugin-react";
+import path from "node:path";
+import { defineWorkersProject } from "@cloudflare/vitest-pool-workers/config";
 
-// Plain Vitest config (NOT astro/config's getViteConfig): the Cloudflare adapter's
-// Vite plugin is incompatible with Vitest's worker environment. We test pure,
-// framework-free modules (e.g. src/lib/route-access.ts), so we only need the @/*
-// alias — not Astro's full pipeline. Testing modules that import `astro:*` would
-// need a separate strategy; see test-plan.md §6.
+const alias = { "@": path.resolve(__dirname, "./src") };
+
+// Two projects:
+//  - "node": existing React / i18n / AI / CSV tests run in the Node environment.
+//  - "workers": the dictionary scraper test runs inside workerd so it exercises
+//    the real HTMLRewriter (the scraper relies on Workers-native streaming HTML
+//    parsing that cannot be faithfully mocked in Node).
 export default defineConfig({
-  resolve: {
-    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
-  },
+  resolve: { alias },
   test: {
-    include: ["src/**/*.{test,spec}.ts"],
+    projects: [
+      {
+        plugins: [react()],
+        resolve: {
+          alias: {
+            ...alias,
+            // `cloudflare:workers` is a virtual module supplied at build/runtime
+            // by @astrojs/cloudflare; stub it so endpoint modules load under Node.
+            "cloudflare:workers": path.resolve(__dirname, "./src/test/cloudflare-workers.stub.ts"),
+            // `astro:env/server` is likewise virtual; alias it to the stub
+            // with setEnv/resetEnv so unit tests can override env per-case.
+            "astro:env/server": path.resolve(__dirname, "./src/test/stubs/astro-env-server.ts"),
+          },
+        },
+        test: {
+          name: "node",
+          environment: "node",
+          globals: true,
+          include: ["src/**/*.test.{ts,tsx}"],
+          exclude: ["src/lib/services/dictionary.test.ts"],
+          setupFiles: ["./src/test/setup.ts"],
+        },
+      },
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      defineWorkersProject({
+        resolve: {
+          alias: {
+            ...alias,
+            // `astro:env/server` is virtual under Vitest; alias it to the stub
+            // so the Pons service (which reads `PONS_API_SECRET` via `getSecret`)
+            // can load under workerd. Tests override `getSecret` via `vi.mock`.
+            "astro:env/server": path.resolve(__dirname, "./src/test/astro-env-server.stub.ts"),
+          },
+        },
+        test: {
+          name: "workers",
+          globals: true,
+          include: ["src/lib/services/dictionary.test.ts", "src/lib/services/dictionary-de.test.ts"],
+          poolOptions: {
+            workers: {
+              miniflare: {
+                compatibilityDate: "2026-05-08",
+                compatibilityFlags: ["nodejs_compat"],
+              },
+            },
+          },
+        },
+      }),
+      {
+        // "integration": API authorization tests against a real local Supabase.
+        plugins: [react()],
+        resolve: {
+          alias: {
+            ...alias,
+            "cloudflare:workers": path.resolve(__dirname, "./src/test/cloudflare-workers.stub.ts"),
+            "astro:env/server": path.resolve(__dirname, "./src/test/astro-env-server.stub.ts"),
+            "astro:middleware": path.resolve(__dirname, "./src/test/astro-middleware.stub.ts"),
+          },
+        },
+        test: {
+          name: "integration",
+          environment: "node",
+          globals: true,
+          include: ["tests/integration/**/*.test.ts"],
+          setupFiles: ["tests/integration/helpers/env.ts"],
+          testTimeout: 30000,
+          hookTimeout: 30000,
+        },
+      },
+    ],
   },
 });

@@ -1,19 +1,22 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import SignInForm from "@/components/auth/SignInForm";
+import { getTranslations } from "@/lib/i18n/ui";
 
 const error = Astro.url.searchParams.get("error");
+const locale = Astro.locals.locale;
+const t = getTranslations(locale);
 ---
 
-<Layout title="Sign in">
+<Layout title={t("auth.signin")} locale={locale}>
   <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
     <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
       <h1
         class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent"
       >
-        Sign in
+        {t("auth.signin")}
       </h1>
-      <SignInForm serverError={error} client:load />
+      <SignInForm serverError={error} locale={locale} client:load />
       <div class="my-4 flex items-center gap-3 text-xs text-blue-100/40">
         <span class="h-px flex-1 bg-white/10"></span>or<span class="h-px flex-1 bg-white/10"></span>
       </div>
@@ -24,7 +27,8 @@ const error = Astro.url.searchParams.get("error");
         Continue with Google
       </a>
       <p class="mt-4 text-center text-sm text-blue-100/60">
-        Don't have an account? <a href="/auth/signup" class="text-purple-300 hover:underline">Sign up</a>
+        {t("auth.noAccount")}
+        <a href="/auth/signup" class="text-purple-300 hover:underline">{t("auth.signUp")}</a>
       </p>
     </div>
   </div>

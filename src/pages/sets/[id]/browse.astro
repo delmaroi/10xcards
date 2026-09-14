@@ -1,0 +1,50 @@
+---
+export const prerender = false;
+
+import Layout from "@/layouts/Layout.astro";
+import { getSetWithFlashcards } from "@/lib/services/sets";
+import { getUserVoices } from "@/lib/services/user-settings";
+import FlashcardBrowseView from "@/components/sets/FlashcardBrowseView";
+import type { SupportedLocale } from "@/lib/i18n/constants";
+import { DEFAULT_VOICE, type VoiceId } from "@/lib/tts/voices";
+import type { Flashcard } from "@/types";
+
+const { id } = Astro.params;
+const { user, supabase, locale } = Astro.locals;
+
+let setName = "";
+let flashcards: Flashcard[] = [];
+let found = false;
+let voiceFront: VoiceId = DEFAULT_VOICE;
+let voiceBack: VoiceId = DEFAULT_VOICE;
+
+if (user && supabase && id) {
+  const { data, error } = await getSetWithFlashcards(supabase, user.id, id);
+  if (data && !error && data.flashcards.length > 0) {
+    setName = data.set.name;
+    flashcards = data.flashcards;
+    found = true;
+  }
+  const { data: voices } = await getUserVoices(supabase, user.id);
+  voiceFront = voices.front;
+  voiceBack = voices.back;
+}
+
+if (!found || !id) {
+  Astro.response.status = 302;
+  Astro.response.headers.set("Location", id ? `/sets/${id}` : "/dashboard");
+  return;
+}
+---
+
+<Layout title={`Browse — ${setName}`}>
+  <FlashcardBrowseView
+    client:only="react"
+    setId={id}
+    setName={setName}
+    flashcards={flashcards}
+    locale={locale as SupportedLocale}
+    voiceFront={voiceFront}
+    voiceBack={voiceBack}
+  />
+</Layout>

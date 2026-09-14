@@ -4,6 +4,13 @@
 # per-edit — per the test-plan/hook performance guidance. Exit 2 = blocking.
 set -uo pipefail
 
+# Ensure Node.js >=22 is on PATH (nvm subshell may default to an older version)
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  . "$NVM_DIR/nvm.sh"
+  nvm use 22 --silent 2>/dev/null || true
+fi
+
 cd "${CLAUDE_PROJECT_DIR:-.}" || exit 0
 
 if ! output=$(npx astro check 2>&1); then

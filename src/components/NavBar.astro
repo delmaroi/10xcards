@@ -1,0 +1,28 @@
+---
+import { UserMenu } from "@/components/layout/UserMenu";
+import { getTranslations } from "@/lib/i18n/ui";
+import type { SupportedLocale } from "@/lib/i18n/constants";
+const { user, locale } = Astro.locals;
+const t = getTranslations(locale as SupportedLocale);
+---
+
+{
+  user && (
+    <nav class="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur-xl">
+      <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+        <div class="flex items-center gap-6">
+          <a
+            href="/"
+            class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-lg font-bold text-transparent"
+          >
+            10xCards
+          </a>
+          <a href="/dashboard" class="text-sm text-blue-100/60 transition-colors hover:text-white">
+            {t("nav.dashboard")}
+          </a>
+        </div>
+        <UserMenu email={user.email ?? ""} locale={locale as SupportedLocale} client:load />
+      </div>
+    </nav>
+  )
+}
